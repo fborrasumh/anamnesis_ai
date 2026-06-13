@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="es" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AnamnesIA · Entrenador de Historia Clínica</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--brd:#30363d;--pu:#1e6b8a;--pl:#3ab8e0;--ac:#e85d26;--a2:#f0a060;--tx:#e6edf3;--t2:#8b949e;--t3:#6e7681;--gn:#3fb950;--yw:#d29922;--rd:#f85149;--rad:10px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font-family:'Inter',sans-serif;font-size:15px;line-height:1.6;min-height:100vh}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--bg2)}::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+.app{display:flex;flex-direction:column;min-height:100vh}
+header{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--brd);background:var(--bg2);position:sticky;top:0;z-index:100;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:9px;cursor:pointer}
+.lic{width:32px;height:32px;background:linear-gradient(135deg,var(--pu),var(--pl));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ltx{display:flex;flex-direction:column;line-height:1.15}
+.lt{font-family:'Lora',serif;font-size:15px;font-weight:600;background:linear-gradient(90deg,var(--pl),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ls{font-size:9px;color:var(--t3);letter-spacing:.06em;text-transform:uppercase}
+.hr{margin-left:auto;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.apill{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--brd);border-radius:20px;padding:4px 11px;transition:border-color .3s}
+.apill.nokey{animation:kw 2s ease-in-out infinite}
+@keyframes kw{0%,100%{border-color:rgba(248,81,73,.3)}50%{border-color:var(--rd)}}
+.apill input{background:none;border:none;color:var(--tx);font-family:'JetBrains Mono',monospace;font-size:11px;width:145px;outline:none}
+.apill input::placeholder{color:var(--t3)}
+.apill select{background:none;border:none;color:var(--t2);font-family:'Inter',sans-serif;font-size:11px;outline:none;cursor:pointer}
+.apill select option{background:var(--bg3);color:var(--tx)}
+.bic{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;padding:2px;transition:color .2s}
+.bic:hover{color:var(--pl)}
+.vbg{display:flex;align-items:center;gap:4px;background:var(--bg3);border:1px solid var(--brd);border-radius:20px;padding:3px 8px;font-size:10px;color:var(--t3)}
+.vbg .vd{width:6px;height:6px;border-radius:50%;background:var(--t3)}
+.vbg.listening{border-color:var(--rd);color:var(--rd)}.vbg.listening .vd{background:var(--rd);animation:vp .6s ease-in-out infinite alternate}
+.vbg.speaking{border-color:var(--a2);color:var(--a2)}.vbg.speaking .vd{background:var(--a2);animation:vp .8s ease-in-out infinite alternate}
+@keyframes vp{from{transform:scale(1)}to{transform:scale(1.8)}}
+.lbtn{background:var(--bg3);border:1px solid var(--brd);border-radius:6px;color:var(--t2);cursor:pointer;font-size:11px;font-weight:600;padding:4px 8px;transition:all .2s}
+.lbtn:hover{border-color:var(--pl);color:var(--pl)}
+.npill{display:flex;gap:3px;background:var(--bg3);border:1px solid var(--brd);border-radius:20px;padding:3px}
+.npb{background:none;border:none;border-radius:16px;color:var(--t3);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 10px;transition:all .2s}
+.npb:hover{color:var(--tx)}.npb.active{background:var(--bg2);color:var(--tx);border:1px solid var(--brd)}
+.screen{display:none;flex:1}.screen.active{display:flex}
+/* SETUP */
+#ss{flex-direction:column;align-items:center;padding:28px 18px;overflow-y:auto}
+.hero{text-align:center;max-width:540px;margin-bottom:22px}
+.hero h1{font-family:'Lora',serif;font-size:clamp(20px,4vw,32px);font-weight:600;line-height:1.25;margin-bottom:8px}
+.hero h1 em{font-style:italic;color:var(--pl)}
+.hero p{color:var(--t2);font-size:13px}
+.sc{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:20px;width:100%;max-width:540px;display:flex;flex-direction:column;gap:15px}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t2)}
+.fi input,.fi select{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;color:var(--tx);font-family:'Inter',sans-serif;font-size:14px;padding:8px 12px;outline:none;transition:border-color .2s;width:100%}
+.fi input:focus,.fi select:focus{border-color:var(--pl)}.fi select option{background:var(--bg3)}
+.dgr{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.db{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;color:var(--t2);cursor:pointer;padding:9px 5px;text-align:center;font-family:'Inter',sans-serif;font-size:11.5px;font-weight:500;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:2px}
+.db .di{font-size:17px}.db:hover{border-color:var(--pu);color:var(--tx)}.db.sel{border-color:var(--pl);background:rgba(58,184,224,.12);color:var(--pl)}
+.mgr{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.mb{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;cursor:pointer;padding:10px 7px;text-align:center;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--t2)}
+.mb .mi{font-size:19px}.mb .mt{font-size:12px;font-weight:600;color:var(--tx)}.mb .ms{font-size:10px;color:var(--t3);line-height:1.3}
+.mb:hover{border-color:var(--pu)}.mb.sel{border-color:var(--pl);background:rgba(58,184,224,.1)}.mb.sel .mt{color:var(--pl)}
+.mdbox{padding:9px 12px;border-radius:8px;font-size:11.5px;line-height:1.55;display:flex;gap:8px;align-items:flex-start}
+.mdbox.practice{background:rgba(63,185,80,.08);border:1px solid rgba(63,185,80,.2);color:var(--t2)}
+.mdbox.exam{background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.2);color:var(--t2)}
+.mdbox.tutor{background:rgba(240,160,96,.08);border:1px solid rgba(240,160,96,.2);color:var(--t2)}
+.mdbox .mi2{font-size:17px;flex-shrink:0;margin-top:1px}
+.vtr{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--brd);border-radius:8px;padding:8px 12px}
+.vti span{font-size:12px;font-weight:500}.vti small{font-size:10px;color:var(--t3);display:block}
+.tog{position:relative;width:36px;height:20px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.togt{position:absolute;cursor:pointer;inset:0;background:var(--bg);border:1px solid var(--brd);border-radius:20px;transition:.25s}
+.togt:before{content:'';position:absolute;height:14px;width:14px;left:2px;top:2px;background:var(--t3);border-radius:50%;transition:.25s}
+.tog input:checked+.togt{background:rgba(58,184,224,.2);border-color:var(--pl)}
+.tog input:checked+.togt:before{transform:translateX(16px);background:var(--pl)}
+.vi{background:rgba(58,184,224,.07);border:1px solid rgba(58,184,224,.2);border-radius:8px;padding:8px 11px;font-size:10.5px;color:var(--t2);line-height:1.5}
+.vi strong{color:var(--pl)}
+.bp{background:linear-gradient(135deg,var(--pu),#1a4a5e);border:none;border-radius:8px;color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;padding:11px 20px;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:7px}
+.bp:hover{transform:translateY(-1px);box-shadow:0 5px 16px rgba(30,107,138,.4)}.bp:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.bs{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;color:var(--tx);cursor:pointer;font-family:'Inter',sans-serif;font-size:12.5px;font-weight:500;padding:8px 16px;transition:all .2s;display:flex;align-items:center;gap:5px}
+.bs:hover{border-color:var(--pl);color:var(--pl)}
+/* GEN */
+#sg{flex-direction:column;align-items:center;justify-content:center;gap:18px}
+.pr{width:60px;height:60px;border-radius:50%;border:3px solid transparent;border-top-color:var(--pl);border-right-color:var(--pu);animation:spin 1.2s linear infinite;display:flex;align-items:center;justify-content:center}
+.pr span{font-size:22px;animation:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gl{font-family:'Lora',serif;font-size:15px;color:var(--t2);text-align:center}
+.gss{display:flex;flex-direction:column;gap:6px;max-width:300px;width:100%}
+.gst{display:flex;align-items:center;gap:9px;font-size:11px;color:var(--t3);padding:7px 11px;background:var(--bg2);border:1px solid var(--brd);border-radius:7px;transition:all .3s}
+.gst.active{color:var(--pl);border-color:var(--pl)}.gst.done{color:var(--gn);border-color:var(--gn)}
+.gsd{width:7px;height:7px;border-radius:50%;background:var(--t3);flex-shrink:0}
+.gst.active .gsd{background:var(--pl);animation:vp .6s ease-in-out infinite alternate}.gst.done .gsd{background:var(--gn)}
+/* CASE */
+#sca{flex-direction:column;align-items:center;padding:26px 18px;gap:13px;overflow-y:auto}
+.cc{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:20px;max-width:580px;width:100%}
+.ctag{display:inline-flex;align-items:center;gap:5px;background:rgba(232,93,38,.14);border:1px solid rgba(232,93,38,.28);border-radius:20px;padding:2px 9px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--a2);margin-bottom:9px}
+.cc h2{font-family:'Lora',serif;font-size:18px;font-weight:600;margin-bottom:7px}
+.cm{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:9px}.cm span{font-size:11px;color:var(--t2)}.cm strong{color:var(--tx)}
+.cq{background:var(--bg3);border-left:3px solid var(--pl);border-radius:0 6px 6px 0;padding:9px 12px;font-family:'Lora',serif;font-style:italic;font-size:13.5px;color:var(--tx);margin-bottom:11px}
+.ci{font-size:12px;color:var(--t2);line-height:1.7}.ci strong{color:var(--tx)}
+.mbadge{display:inline-flex;align-items:center;gap:5px;border-radius:6px;padding:4px 9px;font-size:11px;font-weight:600;margin-bottom:11px}
+.mbadge.practice{background:rgba(63,185,80,.12);border:1px solid rgba(63,185,80,.3);color:var(--gn)}
+.mbadge.exam{background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.3);color:var(--rd)}
+.mbadge.tutor{background:rgba(240,160,96,.12);border:1px solid rgba(240,160,96,.3);color:var(--a2)}
+/* CHAT */
+#sch{flex-direction:row;align-items:stretch;overflow:hidden;height:calc(100vh - 54px)}
+.cmn{flex:1;display:flex;flex-direction:column;min-width:0}
+.ctp{display:flex;align-items:center;gap:9px;padding:8px 14px;border-bottom:1px solid var(--brd);background:var(--bg2);flex-shrink:0}
+.pav{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#3d2b1f,#6b4423);border:2px solid var(--a2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.pnm{font-weight:600;font-size:12.5px}.pst{font-size:9px;color:var(--t3)}
+.tb{background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:3px 7px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t2);min-width:46px;text-align:center}
+.tb.warn{color:var(--yw);border-color:var(--yw)}.tb.danger{color:var(--rd);border-color:var(--rd);animation:bl .8s steps(1) infinite}
+@keyframes bl{50%{opacity:.4}}
+.cvp{background:var(--bg3);border:1px solid var(--brd);border-radius:6px;padding:3px 7px;font-size:10.5px;color:var(--t2);font-weight:600;transition:all .3s}
+.cvp.mid{border-color:var(--yw);color:var(--yw);background:rgba(210,153,34,.08)}
+.cvp.hi{border-color:var(--gn);color:var(--gn);background:rgba(63,185,80,.1)}
+.th{padding:7px 14px;background:rgba(240,160,96,.1);border-bottom:1px solid rgba(240,160,96,.25);font-size:11px;color:var(--a2);display:none;align-items:center;gap:8px;flex-shrink:0}
+.th.show{display:flex}
+.msgs{flex:1;overflow-y:auto;padding:13px 12px;display:flex;flex-direction:column;gap:10px;min-height:0;scroll-behavior:smooth}
+.msg{display:flex;gap:7px;animation:fu .2s ease}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.msg.user{flex-direction:row-reverse}
+.mav{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;margin-top:2px}
+.msg.user .mav{background:linear-gradient(135deg,var(--pu),var(--pl))}
+.msg.patient .mav{background:linear-gradient(135deg,#3d2b1f,#6b4423);border:1px solid var(--a2)}
+.msg.system .mav,.msg.tfb .mav{background:var(--bg3);border:1px solid var(--brd)}
+.mbub{max-width:67%;background:var(--bg2);border:1px solid var(--brd);border-radius:11px;padding:8px 12px;font-size:12.5px;line-height:1.65}
+.msg.user .mbub{background:rgba(30,107,138,.22);border-color:rgba(58,184,224,.28);text-align:right}
+.msg.patient .mbub{font-family:'Lora',serif;font-size:13.5px}
+.msg.system .mbub{background:rgba(61,184,80,.06);border-color:rgba(63,185,80,.18);font-size:10.5px;color:var(--t2);font-style:italic;max-width:100%;text-align:center;margin:0 auto}
+.msg.tfb .mbub{background:rgba(240,160,96,.1);border-color:rgba(240,160,96,.3);font-size:11px;color:var(--a2);max-width:88%;margin:0 auto;text-align:center}
+.mr{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;margin-bottom:2px;color:var(--t3)}
+.msg.user .mr{color:var(--pl)}.msg.patient .mr{color:var(--a2)}
+.ttsb{background:none;border:none;color:var(--t3);cursor:pointer;font-size:10px;padding:0 0 0 4px;opacity:.6;vertical-align:middle;transition:opacity .2s}
+.ttsb:hover{opacity:1;color:var(--a2)}
+.td{display:flex;gap:4px;padding:2px 0}.td span{width:6px;height:6px;background:var(--t3);border-radius:50%;animation:dot 1.2s ease-in-out infinite}
+.td span:nth-child(2){animation-delay:.2s}.td span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.cia{padding:9px 12px;border-top:1px solid var(--brd);background:var(--bg2);display:flex;gap:6px;align-items:flex-end;flex-shrink:0}
+.cia textarea{flex:1;background:var(--bg3);border:1px solid var(--brd);border-radius:9px;color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;line-height:1.5;padding:7px 11px;resize:none;outline:none;min-height:36px;max-height:110px;transition:border-color .2s}
+.cia textarea:focus{border-color:var(--pl)}.cia textarea::placeholder{color:var(--t3)}.cia textarea.lis{border-color:var(--rd);background:rgba(248,81,73,.04)}
+.bse{background:var(--pu);border:none;border-radius:8px;color:white;cursor:pointer;font-size:14px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.bse:hover{background:var(--pl)}.bse:disabled{opacity:.5;cursor:not-allowed}
+.bse.loading{background:var(--bg3);border:1px solid var(--brd);cursor:not-allowed;animation:bsp .8s linear infinite}
+@keyframes bsp{to{transform:rotate(360deg)}}
+.bmc{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;color:var(--t2);cursor:pointer;font-size:15px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.bmc:hover{border-color:var(--pl);color:var(--pl)}.bmc.rec{background:rgba(248,81,73,.13);border-color:var(--rd);color:var(--rd);animation:mp 1s ease-in-out infinite}
+@keyframes mp{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,.35)}50%{box-shadow:0 0 0 5px rgba(248,81,73,0)}}
+.bmc.nosup{opacity:.3;cursor:not-allowed}
+.ben{background:rgba(248,81,73,.09);border:1px solid rgba(248,81,73,.25);border-radius:8px;color:var(--rd);cursor:pointer;font-family:'Inter',sans-serif;font-size:10.5px;font-weight:600;padding:5px 9px;transition:all .2s;flex-shrink:0;height:36px;white-space:nowrap}
+.ben:hover{background:rgba(248,81,73,.18)}
+.csb{width:215px;border-left:1px solid var(--brd);background:var(--bg2);padding:13px 11px;display:flex;flex-direction:column;gap:13px;overflow-y:auto;flex-shrink:0}
+.sse{display:flex;flex-direction:column;gap:6px}
+.sti{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.11em;color:var(--t3);padding-bottom:4px;border-bottom:1px solid var(--brd)}
+.cl{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--t2);line-height:1.3}
+.cdo{width:13px;height:13px;border-radius:50%;border:2px solid var(--brd);flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;font-size:7px;transition:all .3s}
+.cdo.done{background:var(--gn);border-color:var(--gn);color:white}.cdo.par{background:var(--yw);border-color:var(--yw);color:#000}
+.cl.di{color:var(--tx)}
+.cob{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;margin-top:3px}
+.cof{height:100%;background:linear-gradient(90deg,var(--pu),var(--gn));border-radius:3px;transition:width .4s}
+.tct{text-align:center;font-size:9.5px;color:var(--t3)}.tct span{font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--tx);display:block}
+.hb{background:var(--bg3);border:1px solid var(--brd);border-radius:7px;padding:7px 9px;font-size:10px;color:var(--t2);line-height:1.5}.hb strong{color:var(--tx)}
+.exam-mode .csec{display:none}
+/* MODALS */
+.mov{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:center;justify-content:center}
+.mov.open{display:flex}
+.mbox{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:22px;max-width:400px;width:92%;display:flex;flex-direction:column;gap:12px;animation:fu .2s ease}
+.mbox h3{font-family:'Lora',serif;font-size:16px}.mbox p{font-size:12px;color:var(--t2);line-height:1.6}
+.mbox textarea{background:var(--bg3);border:1px solid var(--brd);border-radius:8px;color:var(--tx);font-family:'Inter',sans-serif;font-size:13px;padding:8px 11px;resize:none;outline:none;min-height:75px;transition:border-color .2s;width:100%}
+.mbox textarea:focus{border-color:var(--pl)}
+.mac{display:flex;gap:7px;justify-content:flex-end}
+.bsm{background:var(--bg3);border:1px solid var(--brd);border-radius:7px;color:var(--tx);cursor:pointer;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:6px 13px;transition:all .2s}
+.bsm:hover{border-color:var(--pl)}.bsm.pr{background:var(--pu);border-color:var(--pu);color:white}
+.bsm.pr:hover{background:var(--pl)}.bsm.dg{background:rgba(248,81,73,.1);border-color:var(--rd);color:var(--rd)}
+.bsm.dg:hover{background:rgba(248,81,73,.22)}
+/* EVAL */
+#sev{flex-direction:column;align-items:center;padding:26px 18px;gap:18px;overflow-y:auto}
+.evh{text-align:center;max-width:700px}.evh h2{font-family:'Lora',serif;font-size:21px;margin-bottom:5px}.evh p{color:var(--t2);font-size:11.5px}
+.scw{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.sco{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:14px;text-align:center;min-width:100px}
+.sn{font-family:'JetBrains Mono',monospace;font-size:30px;font-weight:500;line-height:1;background:linear-gradient(135deg,var(--pl),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:3px}
+.sl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
+.etabs{display:flex;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:3px;max-width:700px;width:100%}
+.etab{flex:1;background:none;border:none;border-radius:7px;color:var(--t2);cursor:pointer;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;padding:7px 4px;transition:all .2s;text-align:center;position:relative}
+.etab:hover{color:var(--tx)}.etab.active{background:var(--bg3);color:var(--tx);border:1px solid var(--brd)}
+.etab.active::after{content:'';position:absolute;bottom:-5px;left:50%;transform:translateX(-50%);width:16px;height:2px;background:var(--pl);border-radius:1px}
+.tp{display:none;max-width:900px;width:100%}.tp.active{display:flex;flex-direction:column;gap:13px}
+.ri{background:var(--bg2);border:1px solid var(--brd);border-radius:9px;overflow:hidden}
+.rh{display:flex;align-items:center;gap:9px;padding:9px 13px;background:var(--bg3)}
+.ric2{font-size:15px;flex-shrink:0}.rti{font-size:12.5px;font-weight:600;flex:1}
+.rsc{font-size:11px;font-weight:700}.rsc.l0{color:var(--rd)}.rsc.l1{color:var(--yw)}.rsc.l2{color:var(--pl)}.rsc.l3{color:var(--gn)}
+.rlvs{display:grid;grid-template-columns:repeat(4,1fr)}
+.rlv{padding:8px 9px;border-top:1px solid var(--brd);font-size:10.5px;line-height:1.45;color:var(--t3);border-right:1px solid var(--brd)}
+.rlv:last-child{border-right:none}.rlv.hit{color:var(--tx);background:rgba(58,184,224,.06)}
+.rll{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;color:var(--t3)}.rlv.hit .rll{color:var(--pl)}
+.rfb{padding:8px 13px;font-size:11px;color:var(--t2);line-height:1.6;border-top:1px solid var(--brd);font-style:italic}
+.cgr{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;max-width:700px;width:100%}
+.cc2{background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.cn2{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--t2)}
+.cs2{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600}
+.cb{height:4px;background:var(--bg3);border-radius:2px;overflow:hidden}.cbf{height:100%;border-radius:2px;transition:width .5s}
+.cco{font-size:10.5px;color:var(--t2);line-height:1.4}
+.qt{font-size:13px;line-height:1.75;color:var(--tx);font-family:'Lora',serif}.qt p{margin-bottom:7px}
+.sli{list-style:none;display:flex;flex-direction:column;gap:4px;font-size:12px}
+.sli.g li::before{content:'✓ ';color:var(--gn)}.sli.o li::before{content:'↗ ';color:var(--a2)}
+.cer{display:flex;align-items:center;gap:7px;font-size:11.5px;padding:5px 7px;border-radius:6px;background:var(--bg3)}
+.cei{width:15px;height:15px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7.5px}
+.cei.ok{background:rgba(63,185,80,.2);color:var(--gn);border:1px solid var(--gn)}
+.cei.no{background:rgba(248,81,73,.14);color:var(--rd);border:1px solid var(--rd)}
+.cei.par{background:rgba(210,153,34,.14);color:var(--yw);border:1px solid var(--yw)}
+.tam{display:flex;gap:9px;padding:9px 11px;background:var(--bg2);border:1px solid var(--brd);border-radius:8px}
+.tam.um{border-color:rgba(58,184,224,.2);background:rgba(30,107,138,.09)}.tam.pm{border-color:rgba(240,160,96,.17)}
+.tar{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);flex-shrink:0;width:48px;margin-top:1px}
+.tam.um .tar{color:var(--pl)}.tam.pm .tar{color:var(--a2)}
+.tat{flex:1;font-size:12px;line-height:1.6}.tam.pm .tat{font-family:'Lora',serif}
+.tatg{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.qtg{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:1px 6px;border-radius:8px;border:1px solid}
+.qtg.abierta{color:var(--gn);border-color:var(--gn);background:rgba(63,185,80,.09)}
+.qtg.cerrada{color:var(--yw);border-color:var(--yw);background:rgba(210,153,34,.09)}
+.qtg.compuesta{color:var(--rd);border-color:var(--rd);background:rgba(248,81,73,.09)}
+.qtg.directiva{color:var(--ac);border-color:var(--ac);background:rgba(232,93,38,.09)}
+.qtg.buena_practica{color:var(--pl);border-color:var(--pl);background:rgba(58,184,224,.09)}
+.qtg.oportunidad_perdida{color:var(--t3);border-color:var(--brd)}
+.hcc{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:9px}
+.hcl{background:var(--bg3);border-radius:8px;padding:11px}.hll{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);margin-bottom:5px}
+.hvl{font-family:'Lora',serif;font-size:13px;line-height:1.5;color:var(--tx)}
+.hvr{margin-top:8px;padding:9px 12px;border-radius:7px;font-size:12px;line-height:1.5}
+.hvr.ok{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.25);color:var(--gn)}
+.hvr.par{background:rgba(210,153,34,.1);border:1px solid rgba(210,153,34,.25);color:var(--yw)}
+.hvr.bad{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.25);color:var(--rd)}
+.hcrd{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:17px;max-width:900px;width:100%}
+.hcrd summary{cursor:pointer;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t2);display:flex;align-items:center;gap:6px;user-select:none}
+.hcrd summary:hover{color:var(--tx)}.hcon{margin-top:11px;display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:13px}
+.hf{display:flex;flex-direction:column;gap:2px}.hl{font-size:8.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--t3)}.hv{color:var(--tx);line-height:1.5}
+.eva{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+/* PROGRESS */
+#spr{flex-direction:column;align-items:center;padding:26px 18px;gap:18px;overflow-y:auto}
+.phr{text-align:center;max-width:680px}.phr h2{font-family:'Lora',serif;font-size:21px;margin-bottom:5px}.phr p{color:var(--t2);font-size:12px}
+.pst2{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.psc{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:13px;text-align:center;min-width:95px}
+.psn{font-family:'JetBrains Mono',monospace;font-size:27px;font-weight:500;line-height:1;color:var(--pl);margin-bottom:3px}
+.psl{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em}
+.rdrw{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:18px;max-width:700px;width:100%;display:flex;flex-direction:column;align-items:center;gap:12px}
+.rdrw h3{font-family:'Lora',serif;font-size:15px;align-self:flex-start}
+.rlg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;width:100%;max-width:340px}
+.rli{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--t2)}.rld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.hit2{background:var(--bg2);border:1px solid var(--brd);border-radius:9px;padding:13px;display:flex;align-items:center;gap:12px;cursor:default;transition:border-color .2s;max-width:700px;width:100%}
+.hit2:hover{border-color:var(--pl)}.hiav{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:2px solid var(--brd);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.him{flex:1}.hin{font-size:13px;font-weight:600}.hims{font-size:11px;color:var(--t2);margin-top:1px}
+.his{text-align:right}.hisn{font-family:'JetBrains Mono',monospace;font-size:21px;font-weight:500}.hisl{font-size:9px;color:var(--t3);text-transform:uppercase}
+.hempty{text-align:center;color:var(--t3);font-size:13px;padding:28px;max-width:700px;width:100%}
+.evo{background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:16px;max-width:700px;width:100%}
+.evo h3{font-family:'Lora',serif;font-size:14px;margin-bottom:12px}.csvg{width:100%;height:150px}
+.lbar{position:fixed;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--pu),var(--pl),var(--ac));animation:lba 1.5s ease-in-out infinite;z-index:999;display:none}
+.lbar.on{display:block}
+@keyframes lba{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);border-radius:8px;padding:8px 15px;font-size:12px;z-index:999;display:none;max-width:420px;text-align:center}
+.toast.err{background:rgba(248,81,73,.17);border:1px solid var(--rd);color:var(--rd)}
+.toast.inf{background:rgba(58,184,224,.12);border:1px solid var(--pl);color:var(--pl)}
+.toast.ok{background:rgba(63,185,80,.12);border:1px solid var(--gn);color:var(--gn)}
+@media(max-width:700px){.hcon,.hcc,.rlvs,.cgr{grid-template-columns:1fr}.csb{display:none}.mbub{max-width:86%}.cgr{grid-template-columns:repeat(2,1fr)}.apill input{width:90px}#sch{height:calc(100vh - 50px)}}
+</style>
+</head><body>
+<div class="lbar" id="lbar"></div><div class="toast" id="toast"></div>
+<div class="mov" id="mHypo"><div class="mbox"><h3 id="mhT"></h3><p id="mhP"></p><textarea id="hypoIn" rows="3"></textarea><div class="mac"><button class="bsm" onclick="closeHypo()" id="t_cancel"></button><button class="bsm pr" onclick="submitHypo()" id="t_finish"></button></div></div></div>
+<div class="mov" id="mEnd"><div class="mbox"><h3 id="meT"></h3><p id="meP"></p><div class="mac"><button class="bsm" onclick="closeEnd()" id="t_back"></button><button class="bsm" onclick="openHypo()" id="t_addhypo"></button><button class="bsm dg" onclick="doEnd('')" id="t_nohypo"></button></div></div></div>
+<div class="app">
+<header>
+  <div class="logo" onclick="goHome()"><div class="lic">🩺</div><div class="ltx"><span class="lt">AnamnesIA</span><span class="ls" id="t_sub"></span></div></div>
+  <div class="hr">
+    <div class="npill" id="navpill" style="display:none"><button class="npb active" id="navH" onclick="navTo('home')" id="t_nnew"></button><button class="npb" id="navP" onclick="navTo('progress')">📈 <span id="t_nprog"></span></button></div>
+    <div class="vbg" id="vbg"><span class="vd"></span><span id="vbl">voz</span></div>
+    <button class="lbtn" onclick="toggleLang()" id="lbtn">EN</button>
+    <div class="apill" id="apill"><span style="color:var(--t3);font-size:10px">🔑</span><input type="password" id="apiKey" placeholder="OpenAI API key" autocomplete="off" oninput="saveKey()"><button class="bic" onclick="toggleKey()">👁</button><select id="msel"><option value="gpt-4o-mini" selected>gpt-4o-mini</option><option value="gpt-4o">gpt-4o</option><option value="gpt-4-turbo">gpt-4-turbo</option><option value="o1-mini">o1-mini</option></select></div>
+  </div>
+</header>
+<div class="screen active" id="ss">
+  <div class="hero"><h1 id="t_h1"></h1><p id="t_h1s"></p></div>
+  <div class="sc">
+    <div class="fi"><label id="t_ln"></label><input type="text" id="sname" id="t_snph"></div>
+    <div class="fi"><label id="t_ls"></label><select id="spec" onchange="updSD()"></select><div id="spdesc" style="font-size:10.5px;color:var(--t3);padding:3px 2px;line-height:1.5"></div></div>
+    <div class="fi"><label id="t_ld"></label>
+      <div class="dgr">
+        <button class="db" data-diff="básico" onclick="selD(this)"><span class="di">🌱</span><span id="t_d1"></span><small style="color:var(--t3);font-size:9px" id="t_d1s"></small></button>
+        <button class="db sel" data-diff="intermedio" onclick="selD(this)"><span class="di">🔬</span><span id="t_d2"></span><small style="color:var(--t3);font-size:9px" id="t_d2s"></small></button>
+        <button class="db" data-diff="avanzado" onclick="selD(this)"><span class="di">⚡</span><span id="t_d3"></span><small style="color:var(--t3);font-size:9px" id="t_d3s"></small></button>
+      </div>
+    </div>
+    <div class="fi"><label id="t_lm"></label>
+      <div class="mgr">
+        <button class="mb sel" data-mode="practice" onclick="selM(this)"><span class="mi">📚</span><span class="mt" id="t_m1"></span><span class="ms" id="t_m1s"></span></button>
+        <button class="mb" data-mode="exam" onclick="selM(this)"><span class="mi">📝</span><span class="mt" id="t_m2"></span><span class="ms" id="t_m2s"></span></button>
+        <button class="mb" data-mode="tutor" onclick="selM(this)"><span class="mi">🎓</span><span class="mt" id="t_m3"></span><span class="ms" id="t_m3s"></span></button>
+      </div>
+      <div id="mdesc" class="mdbox practice"><span class="mi2">📚</span><span id="mdesct"></span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div class="vtr"><div class="vti"><span id="t_vstt"></span><small id="t_vstts"></small></div><label class="tog"><input type="checkbox" id="tSTT" onchange="onVT()"><span class="togt"></span></label></div>
+      <div class="vtr"><div class="vti"><span id="t_vtts"></span><small id="t_vttss"></small></div><label class="tog"><input type="checkbox" id="tTTS" onchange="onVT()"><span class="togt"></span></label></div>
+      <div class="vi" id="vinfo" style="display:none"><span id="t_vi"></span></div>
+    </div>
+    <button class="bp" onclick="startSess()"><span>🎭</span> <span id="t_sb"></span></button>
+  </div>
+</div>
+<div class="screen" id="sg"><div class="pr"><span>🩺</span></div><div class="gl" id="gl"></div><div class="gss"><div class="gst" id="gs0"><span class="gsd"></span><span id="t_gs0"></span></div><div class="gst" id="gs1"><span class="gsd"></span><span id="t_gs1"></span></div><div class="gst" id="gs2"><span class="gsd"></span><span id="t_gs2"></span></div></div></div>
+<div class="screen" id="sca"><div class="cc" id="ccard"></div><button class="bp" onclick="beginChat()" style="max-width:260px;width:100%"><span>💬</span> <span id="t_sc"></span></button></div>
+<div class="screen" id="sch">
+  <div class="cmn">
+    <div class="ctp"><div class="pav" id="pav">🧑</div><div style="flex:1"><div class="pnm" id="pnbar"></div><div class="pst" id="pstbar"></div></div><div class="cvp" id="cvp">0%</div><div class="tb" id="tbt">00:00</div></div>
+    <div class="th" id="thint"><span>🎓</span><span id="thintt"></span></div>
+    <div class="msgs" id="msgs"></div>
+    <div class="cia"><textarea id="cin" rows="1" onkeydown="hkey(event)" oninput="ares(this)"></textarea><button class="bmc" id="bmc" onclick="togMic()" style="display:none">🎙</button><button class="ben" id="t_endb" onclick="confirmEnd()"></button><button class="bse" id="bse" onclick="sendMsg()">➤</button></div>
+  </div>
+  <div class="csb" id="csb">
+    <div class="sse"><div class="sti" id="t_sbs"></div><div class="tct"><span id="t_sbt"></span><span id="tcount">0</span></div><div class="tb" id="tbs">00:00</div></div>
+    <div class="sse csec" id="covSec"><div class="sti" id="t_sbc"></div><div id="clside"></div><div class="cob"><div class="cof" id="cof" style="width:0%"></div></div><div style="font-size:9.5px;color:var(--t3);text-align:center"><span id="covpct">0</span>% <span id="t_exp"></span></div></div>
+    <div class="sse"><div class="sti" id="t_sbg"></div><div class="hb" id="t_sbgt"></div></div>
+  </div>
+</div>
+<div class="screen" id="sev">
+  <div class="evh"><h2 id="t_evt"></h2><p id="evsub"></p></div>
+  <div class="scw" id="scorecards"></div>
+  <div class="etabs"><button class="etab active" onclick="showtab('tp1',this)" id="t_t1"></button><button class="etab" onclick="showtab('tp2',this)" id="t_t2"></button><button class="etab" onclick="showtab('tp3',this)" id="t_t3"></button><button class="etab" onclick="showtab('tp4',this)" id="t_t4"></button></div>
+  <div class="tp active" id="tp1"></div>
+  <div class="tp" id="tp2"></div>
+  <div class="tp" id="tp3"></div>
+  <div class="tp" id="tp4"></div>
+  <div id="hypoC" style="display:none;max-width:900px;width:100%;background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:18px"></div>
+  <details class="hcrd"><summary id="t_rev"></summary><div class="hcon" id="hcon"></div></details>
+  <div class="eva"><button class="bs" onclick="expJSON()">📄 JSON</button><button class="bs" onclick="expHTML()">📋 <span id="t_er"></span></button><button class="bp" onclick="newCase()"><span>🎭</span> <span id="t_nc"></span></button></div>
+</div>
+<div class="screen" id="spr">
+  <div class="phr"><h2 id="t_pt"></h2><p id="t_ps"></p></div>
+  <div class="pst2" id="pstats"></div>
+  <div class="rdrw" id="rdrw"><h3 id="t_rt"></h3><div id="rsvg"></div><div class="rlg" id="rlg"></div></div>
+  <div class="evo"><h3 id="t_et"></h3><svg class="csvg" id="csvg"></svg></div>
+  <div style="max-width:700px;width:100%;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px"><h3 style="font-family:'Lora',serif;font-size:15px" id="t_st"></h3><button class="bs" onclick="clearHist()" style="font-size:11px;color:var(--rd);border-color:rgba(248,81,73,.3)" id="t_ch"></button></div>
+  <div id="histlist" style="display:flex;flex-direction:column;gap:9px;max-width:700px;width:100%"></div>
+  <button class="bp" onclick="navTo('home')" style="margin-top:6px"><span>🎭</span> <span id="t_nc2"></span></button>
+</div>
+</div><script>
+/* ═══ DATA ═══ */
+const I18N={
+es:{sub:'Entrenador de Historia Clínica',nnew:'Nueva sesión',nprog:'Mi progreso',h1:'Practica la <em>anamnesis</em><br>con un paciente real',h1s:'El LLM encarna a un paciente con historia oculta. Tú eres el médico.',ln:'Tu nombre',ls:'Especialidad',ld:'Dificultad',lm:'Modo de estudio',d1:'Básico',d1s:'Síntomas claros',d2:'Intermedio',d2s:'Algún distractor',d3:'Avanzado',d3s:'Presentación atípica',m1:'Práctica',m1s:'Checklist + feedback completo',m2:'Examen',m2s:'Sin ayudas, solo eval. final',m3:'Tutor',m3s:'Pista cada 5 turnos',md:{practice:'📚 Modo práctica: el checklist de cobertura está visible. Recibirás análisis completo y rúbrica al finalizar.',exam:'📝 Modo examen: sin checklist, sin hints. Solo evaluación final — simula condiciones OSCE.',tutor:'🎓 Modo tutor: el asistente te da una pista discreta cada 5 turnos si hay áreas sin explorar.'},vstt:'🎙 Voz de entrada (STT)',vstts:'Habla en vez de escribir — local, sin red',vtts:'🔊 Voz del paciente (TTS)',vttss:'El paciente responde en voz alta — local, sin red',vi:'<strong>Web Speech API:</strong> el audio nunca sale del dispositivo. Solo texto va a OpenAI. Mejor en <strong>Chrome/Edge</strong>.',sb:'Generar paciente e iniciar',sc:'Iniciar entrevista clínica',gs0:'Generando paciente con historia clínica oculta',gs1:'Analizando entrevista y aplicando rúbrica',gs2:'Generando informe completo',endb:'Finalizar →',sbs:'⏱ Sesión',sbt:'Intercambios',sbc:'📋 Cobertura',sbg:'💡 Estructura',sbgt:'Motivo → EA → AP/AF → Medicación → Hábitos → Rev.Sist → Psicosocial',exp:'explorado',mhT:'🔍 Tu hipótesis diagnóstica',mhP:'Escribe tu sospecha diagnóstica principal y los diferenciales que considerarías.',cancel:'Cancelar',finish:'Finalizar y evaluar',back:'Volver',addhypo:'Añadir hipótesis',nohypo:'Sin hipótesis',meT:'¿Finalizar sin hipótesis?',meP:'Puedes añadir tu sospecha diagnóstica para enriquecer la evaluación.',evt:'📊 Informe de evaluación',t1:'📐 Rúbrica',t2:'🎯 Competencias',t3:'📝 Transcripción',t4:'✅ Checklist',rev:'🔍 Historia clínica completa (revelar)',er:'Informe HTML',nc:'Nuevo caso',pt:'📈 Mi progreso',ps:'Historial de sesiones y evolución de competencias',rt:'Perfil acumulado de competencias',et:'Evolución de puntuación',st:'Sesiones recientes',ch:'🗑 Limpiar historial',nc2:'Nueva sesión',ltxt:['Insuficiente','Suficiente','Notable','Excelente'],hty:'Tu hipótesis',hdx:'Diagnóstico real',noS:'Aún no hay sesiones. ¡Practica tu primera entrevista!',tS:'Sesiones',aS:'Puntuación media',bS:'Mejor puntuación',tT:'Tiempo total',gc:'Creando caso clínico...',ec:'Analizando la entrevista...',ek:'Introduce tu clave de OpenAI primero',et2:'Realiza al menos 3 preguntas antes de finalizar.',eh:'Escribe tu hipótesis antes de continuar...',ok:'Sesión guardada ✓',cl:'Historial eliminado',
+sd:{'medicina general':'Atención primaria: prevalente, crónicos, agudos banales y de riesgo vital.','urgencias':'Restricción de tiempo, síntomas de alarma, decisión rápida.','medicina interna':'Patología multisistémica compleja, ancianos pluripatológicos.','cardiología':'Cardiopatía isquémica, IC, arritmias, valvulopatías.','neumología':'Disnea, EPOC, asma, neumonía, TEP, nódulo pulmonar.','neurología':'Cefalea, ictus, epilepsia, deterioro cognitivo, síncope.','gastroenterología':'Dolor abdominal, hemorragia digestiva, disfagia.','ginecología y obstetricia':'Patología menstrual, embarazo, oncología ginecológica.','pediatría':'Fiebre, síntomas respiratorios, desarrollo, neonatal.','psiquiatría':'Ánimo, ansiedad, psicosis, conducta suicida, adicciones.','traumatología':'Dolor musculoesquelético, traumatismos, degenerativo.','dermatología':'Lesiones cutáneas, inflamación, neoplasias.','endocrinología':'DM, tiroides, obesidad, osteoporosis.','reumatología':'Artritis, lupus, vasculitis, dolor difuso.','nefrología':'IR, proteinuria, hematuria, electrolitos.','hematología':'Anemia, trombopenias, hemopatías malignas.','oncología':'Síndrome constitucional, quimioterapia, paliativo.','infectología':'Síndrome febril, ITS, VIH, sepsis.','geriatría':'Fragilidad, caídas, delirium, polifarmacia.','cirugía general':'Abdomen agudo, masas, hernias, biliar, colon.'}},
+en:{sub:'Clinical History Trainer',nnew:'New session',nprog:'My progress',h1:'Practice the <em>clinical interview</em><br>with a real patient',h1s:'The LLM plays a patient with a hidden history. You are the doctor.',ln:'Your name',ls:'Specialty',ld:'Difficulty',lm:'Study mode',d1:'Basic',d1s:'Clear symptoms',d2:'Intermediate',d2s:'Some distractors',d3:'Advanced',d3s:'Atypical presentation',m1:'Practice',m1s:'Checklist + full feedback',m2:'Exam',m2s:'No aids, final eval only',m3:'Tutor',m3s:'Hint every 5 turns',md:{practice:'📚 Practice mode: coverage checklist visible. Full qualitative analysis and rubric at the end.',exam:'📝 Exam mode: no checklist, no hints. Only final evaluation — simulates OSCE conditions.',tutor:'🎓 Tutor mode: assistant gives a discrete hint every 5 turns if unexplored areas detected.'},vstt:'🎙 Voice input (STT)',vstts:'Speak instead of typing — local, no network',vtts:'🔊 Patient voice (TTS)',vttss:'Patient replies aloud — local, no network',vi:'<strong>Web Speech API:</strong> audio never leaves device. Only text goes to OpenAI. Best in <strong>Chrome/Edge</strong>.',sb:'Generate patient and start',sc:'Start clinical interview',gs0:'Generating patient with hidden clinical history',gs1:'Analysing interview and applying rubric',gs2:'Generating full report',endb:'Finish →',sbs:'⏱ Session',sbt:'Exchanges',sbc:'📋 Coverage',sbg:'💡 Structure',sbgt:'Chief complaint → HPI → PMH/FH → Medications → Habits → ROS → Psychosocial',exp:'explored',mhT:'🔍 Your diagnostic hypothesis',mhP:'Write your main diagnostic suspicion and differentials you would consider.',cancel:'Cancel',finish:'Finish and evaluate',back:'Back',addhypo:'Add hypothesis',nohypo:'Without hypothesis',meT:'Finish without hypothesis?',meP:'You can add your diagnostic suspicion to enrich the evaluation.',evt:'📊 Evaluation report',t1:'📐 Rubric',t2:'🎯 Competencies',t3:'📝 Transcript',t4:'✅ Checklist',rev:'🔍 Full patient history (reveal)',er:'HTML Report',nc:'New case',pt:'📈 My progress',ps:'Session history and competency evolution',rt:'Accumulated competency profile',et:'Score evolution',st:'Recent sessions',ch:'🗑 Clear history',nc2:'New session',ltxt:['Insufficient','Sufficient','Good','Excellent'],hty:'Your hypothesis',hdx:'Real diagnosis',noS:'No sessions yet. Start your first interview!',tS:'Sessions',aS:'Average score',bS:'Best score',tT:'Total time',gc:'Creating clinical case...',ec:'Analysing the interview...',ek:'Enter your OpenAI API key first',et2:'Ask at least 3 questions before finishing.',eh:'Write your hypothesis before continuing...',ok:'Session saved ✓',cl:'History cleared',
+sd:{'general medicine':'Primary care: prevalent conditions, chronic diseases, acute illness.','emergency':'Time-restricted, alarm symptoms, rapid decision-making.','internal medicine':'Complex multisystem pathology, frail elderly.','cardiology':'Ischaemic heart disease, heart failure, arrhythmias.','pulmonology':'Dyspnea, COPD, asthma, pneumonia, PE.','neurology':'Headache, stroke, epilepsy, cognitive decline, syncope.','gastroenterology':'Abdominal pain, GI bleeding, dysphagia.','gynaecology & obstetrics':'Menstrual disorders, pregnancy, gynaecological oncology.','paediatrics':'Fever, respiratory symptoms, development, neonatal.','psychiatry':'Mood disorders, anxiety, psychosis, suicidal behaviour.','orthopaedics':'Musculoskeletal pain, trauma, degenerative joints.','dermatology':'Skin lesions, inflammatory pathology, neoplasms.','endocrinology':'DM, thyroid, obesity, osteoporosis.','rheumatology':'Arthritis, lupus, vasculitis, diffuse pain.','nephrology':'Renal failure, proteinuria, haematuria.','haematology':'Anaemia, thrombocytopenia, haematological malignancies.','oncology':'Constitutional syndrome, cancer pain, palliative.','infectious disease':'Febrile syndrome, STIs, HIV, sepsis.','geriatrics':'Frailty, falls, delirium, polypharmacy.','general surgery':'Acute abdomen, masses, hernias, biliary, colonic.'}}
+};
+const SES=['medicina general','urgencias','medicina interna','cardiología','neumología','neurología','gastroenterología','ginecología y obstetricia','pediatría','psiquiatría','traumatología','dermatología','endocrinología','reumatología','nefrología','hematología','oncología','infectología','geriatría','cirugía general'];
+const SEE=['general medicine','emergency','internal medicine','cardiology','pulmonology','neurology','gastroenterology','gynaecology & obstetrics','paediatrics','psychiatry','orthopaedics','dermatology','endocrinology','rheumatology','nephrology','haematology','oncology','infectious disease','geriatrics','general surgery'];
+const SIC=['🏥','🚨','🔬','❤️','🫁','🧠','🫃','👶','🧒','🧠','🦴','🌿','⚗️','🦴','🫘','🩸','🎗️','🦠','👴','🔪'];
+const COMPS=[{id:'exploracion',es:'Exploración clínica',en:'Clinical exploration',c:'#3ab8e0'},{id:'comunicacion',es:'Comunicación',en:'Communication',c:'#3fb950'},{id:'orden',es:'Orden y estructura',en:'Order & structure',c:'#f0a060'},{id:'empatia',es:'Empatía',en:'Empathy',c:'#e85d26'},{id:'orientacion',es:'Orientación diagnóstica',en:'Diagnostic orientation',c:'#d29922'},{id:'eficiencia',es:'Eficiencia',en:'Efficiency',c:'#f85149'}];
+const CLS={es:[{id:'motivo',label:'Motivo de consulta',w:15,i:'🎯'},{id:'ea',label:'Enfermedad actual',w:20,i:'📋'},{id:'ap',label:'Antecedentes personales',w:15,i:'📁'},{id:'af',label:'Antecedentes familiares',w:10,i:'👨‍👩‍👧'},{id:'medicacion',label:'Medicación / alergias',w:10,i:'💊'},{id:'habitos',label:'Hábitos',w:10,i:'🚬'},{id:'psicosocial',label:'Contexto psicosocial',w:10,i:'🏠'},{id:'revSistemas',label:'Revisión por sistemas',w:10,i:'🔬'}],en:[{id:'motivo',label:'Chief complaint',w:15,i:'🎯'},{id:'ea',label:'History of illness',w:20,i:'📋'},{id:'ap',label:'Past medical history',w:15,i:'📁'},{id:'af',label:'Family history',w:10,i:'👨‍👩‍👧'},{id:'medicacion',label:'Medications / allergies',w:10,i:'💊'},{id:'habitos',label:'Habits',w:10,i:'🚬'},{id:'psicosocial',label:'Psychosocial context',w:10,i:'🏠'},{id:'revSistemas',label:'Review of systems',w:10,i:'🔬'}]};
+let LG='es';
+const ST={stu:'',sp:'',df:'intermedio',md:'practice',cas:null,his:[],turns:0,t0:null,ti:null,cls:{},ev:null,hyp:'',stt:false,tts:false,tth:0};
+function T(k){return(I18N[LG]||I18N.es)[k]||k}
+function CL(){return CLS[LG]||CLS.es}
+function SPECS(){return LG==='es'?SES:SEE}
+
+/* ═══ i18n APPLY ═══ */
+function applyLang(){
+  const t=I18N[LG],es=LG==='es';
+  document.getElementById('htmlRoot').lang=LG;
+  document.getElementById('lbtn').textContent=es?'EN':'ES';
+  const sm=(id,k)=>{const el=document.getElementById(id);if(el)el.textContent=t[k]||'';};
+  const si=(id,k)=>{const el=document.getElementById(id);if(el)el.innerHTML=t[k]||'';};
+  si('t_h1','h1');sm('t_h1s','h1s');sm('t_sub','sub');sm('t_nnew','nnew');sm('t_nprog','nprog');
+  sm('t_ln','ln');sm('t_ls','ls');sm('t_ld','ld');sm('t_lm','lm');
+  sm('t_d1','d1');sm('t_d1s','d1s');sm('t_d2','d2');sm('t_d2s','d2s');sm('t_d3','d3');sm('t_d3s','d3s');
+  sm('t_m1','m1');sm('t_m1s','m1s');sm('t_m2','m2');sm('t_m2s','m2s');sm('t_m3','m3');sm('t_m3s','m3s');
+  sm('t_vstt','vstt');sm('t_vstts','vstts');sm('t_vtts','vtts');sm('t_vttss','vttss');
+  si('t_vi','vi');sm('t_sb','sb');sm('t_sc','sc');sm('t_gs0','gs0');sm('t_gs1','gs1');sm('t_gs2','gs2');
+  sm('t_endb','endb');sm('t_sbs','sbs');sm('t_sbt','sbt');sm('t_sbc','sbc');sm('t_sbg','sbg');sm('t_sbgt','sbgt');sm('t_exp','exp');
+  sm('mhT','mhT');sm('mhP','mhP');sm('t_cancel','cancel');sm('t_finish','finish');sm('t_back','back');sm('t_addhypo','addhypo');sm('t_nohypo','nohypo');sm('meT','meT');sm('meP','meP');
+  sm('t_evt','evt');sm('t_t1','t1');sm('t_t2','t2');sm('t_t3','t3');sm('t_t4','t4');sm('t_rev','rev');sm('t_er','er');sm('t_nc','nc');
+  sm('t_pt','pt');sm('t_ps','ps');sm('t_rt','rt');sm('t_et','et');sm('t_st','st');sm('t_ch','ch');sm('t_nc2','nc2');
+  const cin=document.getElementById('cin');if(cin)cin.placeholder=es?'Escribe y Enter para enviar...':'Type and Enter to send...';
+  const sn=document.getElementById('sname');if(sn)sn.placeholder=es?'Ej. Ana García':'E.g. Jane Smith';
+  buildSpecSel();updSD();updMD();
+}
+function toggleLang(){LG=LG==='es'?'en':'es';localStorage.setItem('anam_lg',LG);applyLang()}
+
+/* ═══ SPEC SELECT ═══ */
+function buildSpecSel(){
+  const sel=document.getElementById('spec'),sps=SPECS(),prev=sel.value;
+  sel.innerHTML=sps.map((s,i)=>`<option value="${s}">${SIC[i]} ${s.charAt(0).toUpperCase()+s.slice(1)}</option>`).join('');
+  if(sps.includes(prev))sel.value=prev;
+}
+function updSD(){const s=document.getElementById('spec').value,d=T('sd');document.getElementById('spdesc').textContent=d?d[s]||'':''}
+function selD(b){document.querySelectorAll('.db').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');ST.df=b.dataset.diff}
+function selM(b){document.querySelectorAll('.mb').forEach(x=>x.classList.remove('sel'));b.classList.add('sel');ST.md=b.dataset.mode;updMD()}
+function updMD(){
+  const m=document.querySelector('.mb.sel')?.dataset.mode||'practice';
+  const box=document.getElementById('mdesc');box.className='mdbox '+m;
+  const t=T('md');document.getElementById('mdesct').textContent=t?t[m]||'':'';
+}
+
+/* ═══ DB ═══ */
+let db=null;
+function initDB(){return new Promise((res,rej)=>{const r=indexedDB.open('AnamnesIA',1);r.onupgradeneeded=e=>{if(!e.target.result.objectStoreNames.contains('sessions'))e.target.result.createObjectStore('sessions',{keyPath:'id',autoIncrement:true})};r.onsuccess=e=>{db=e.target.result;res(db)};r.onerror=()=>rej(r.error)})}
+async function saveS(d){if(!db)await initDB();return new Promise((res,rej)=>{const tx=db.transaction('sessions','readwrite');tx.objectStore('sessions').add(d);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+async function getS(){if(!db)await initDB();return new Promise((res,rej)=>{const tx=db.transaction('sessions','readonly'),r=tx.objectStore('sessions').getAll();r.onsuccess=()=>res(r.result||[]);r.onerror=()=>rej(r.error)})}
+async function clearS(){if(!db)await initDB();return new Promise((res,rej)=>{const tx=db.transaction('sessions','readwrite');tx.objectStore('sessions').clear();tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error)})}
+
+/* ═══ PERSIST ═══ */
+window.addEventListener('DOMContentLoaded',()=>{
+  const k=sessionStorage.getItem('oai_k');if(k)document.getElementById('apiKey').value=k;
+  LG=localStorage.getItem('anam_lg')||'es';
+  applyLang();checkSpeech();chkKey();
+  initDB().catch(()=>{});
+});
+function saveKey(){sessionStorage.setItem('oai_k',document.getElementById('apiKey').value.trim());chkKey()}
+function getKey(){return document.getElementById('apiKey').value.trim()}
+function getModel(){return document.getElementById('msel').value}
+function toggleKey(){const i=document.getElementById('apiKey');i.type=i.type==='password'?'text':'password'}
+function chkKey(){document.getElementById('apill').classList.toggle('nokey',!getKey())}
+
+/* ═══ VOICE ═══ */
+function checkSpeech(){
+  if(!('SpeechRecognition'in window||'webkitSpeechRecognition'in window)){document.getElementById('tSTT').disabled=true;const bm=document.getElementById('bmc');if(bm)bm.classList.add('nosup')}
+  if(!('speechSynthesis'in window))document.getElementById('tTTS').disabled=true;
+}
+function onVT(){ST.stt=document.getElementById('tSTT').checked;ST.tts=document.getElementById('tTTS').checked;document.getElementById('vinfo').style.display=(ST.stt||ST.tts)?'block':'none'}
+let rec=null,isL=false;
+function initRec(){
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR)return null;
+  const r=new SR();r.lang=LG==='es'?'es-ES':'en-US';r.continuous=false;r.interimResults=true;
+  r.onstart=()=>{isL=true;document.getElementById('bmc').classList.add('rec');document.getElementById('cin').classList.add('lis');setVB('listening',LG==='es'?'escuchando':'listening')};
+  r.onresult=e=>{const t=Array.from(e.results).map(x=>x[0].transcript).join('');document.getElementById('cin').value=t;ares(document.getElementById('cin'))};
+  r.onend=()=>{isL=false;document.getElementById('bmc').classList.remove('rec');document.getElementById('cin').classList.remove('lis');setVB('idle','voz');const v=document.getElementById('cin').value.trim();if(v)sendMsg()};
+  r.onerror=e=>{isL=false;document.getElementById('bmc').classList.remove('rec');setVB('idle','voz');if(e.error!=='no-speech')toast(e.error,'err')};
+  return r;
+}
+function togMic(){if(document.getElementById('bmc').classList.contains('nosup'))return;window.speechSynthesis?.cancel();if(isL){rec?.stop()}else{rec=initRec();rec?.start()}}
+function speak(txt,cb){
+  if(!ST.tts||!window.speechSynthesis){cb?.();return}
+  window.speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(txt);u.lang=LG==='es'?'es-ES':'en-US';u.rate=0.91;
+  const vs=window.speechSynthesis.getVoices(),v=vs.find(x=>x.lang.startsWith(LG==='es'?'es':'en')&&x.localService)||vs.find(x=>x.lang.startsWith(LG==='es'?'es':'en'));if(v)u.voice=v;
+  u.onstart=()=>setVB('speaking',LG==='es'?'paciente habla':'patient speaks');
+  u.onend=()=>{setVB('idle','voz');cb?.()};u.onerror=()=>{setVB('idle','voz');cb?.()};
+  window.speechSynthesis.speak(u);
+}
+function ttsPlay(btn,t){if(window.speechSynthesis?.speaking){window.speechSynthesis.cancel();btn.textContent='🔊';return}btn.textContent='⏹';speak(t,()=>{btn.textContent='🔊'})}
+function setVB(s,l){const b=document.getElementById('vbg');b.className='vbg'+(s!=='idle'?' '+s:'');document.getElementById('vbl').textContent=l}
+
+/* ═══ UI ═══ */
+function showLoad(on){document.getElementById('lbar').classList.toggle('on',on)}
+function toast(msg,type='err'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast '+type;t.style.display='block';clearTimeout(t._t);t._t=setTimeout(()=>t.style.display='none',4200)}
+function showScr(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const el=document.getElementById(id);el.classList.add('active');setTimeout(()=>el.scrollTo?.({top:0,behavior:'smooth'}),50)}
+function ares(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px'}
+function hkey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}}
+function scrl(){const c=document.getElementById('msgs');c.scrollTop=c.scrollHeight}
+function fmtT(s){return`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`}
+function showtab(id,btn){document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.etab').forEach(b=>b.classList.remove('active'));document.getElementById(id).classList.add('active');btn.classList.add('active')}
+function gstep(n){for(let i=0;i<n;i++){const el=document.getElementById('gs'+i);if(el){el.classList.remove('active');el.classList.add('done')}}const el=document.getElementById('gs'+n);if(el)el.classList.add('active')}
+function navTo(dest){document.querySelectorAll('.npb').forEach(b=>b.classList.remove('active'));if(dest==='home'){document.getElementById('navH').classList.add('active');showScr('ss')}else{document.getElementById('navP').classList.add('active');showScr('spr');renderProg()}}
+function goHome(){navTo('home')}
+
+/* ═══ API ═══ */
+async function callAI(messages,sys,max=900,json=false){
+  const k=getKey();if(!k)throw new Error(T('ek'));
+  const m=getModel(),body={model:m,max_tokens:max,messages:[{role:'system',content:sys},...messages]};
+  if(json&&!m.startsWith('o1'))body.response_format={type:'json_object'};
+  const r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+k},body:JSON.stringify(body)});
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error?.message||'API error '+r.status)}
+  const d=await r.json();return d.choices?.[0]?.message?.content||'';
+}
+
+/* ═══ CASE GEN ═══ */
+async function startSess(){
+  ST.stu=document.getElementById('sname').value.trim()||'Estudiante';
+  ST.sp=document.getElementById('spec').value;
+  ST.df=document.querySelector('.db.sel')?.dataset.diff||'intermedio';
+  ST.md=document.querySelector('.mb.sel')?.dataset.mode||'practice';
+  ST.stt=document.getElementById('tSTT').checked;ST.tts=document.getElementById('tTTS').checked;
+  if(!getKey()){toast(T('ek'),'err');return}
+  showScr('sg');gstep(0);document.getElementById('gl').textContent=T('gc');
+  const en=LG==='en';
+  const sys=en
+    ?`Clinical case generator for medical interview simulation. Respond ONLY valid JSON no markdown:
+{"patient":{"name":"realistic","age":number,"sex":"male|female","occupation":"job","avatar":"emoji"},"chief_complaint":"first-person phrase","hidden_diagnosis":"precise","full_history":{"hpi":"onset,char,location,timing,modifiers","pmh":"past diseases,surgeries","fh":"family pathologies","medications":"drugs and allergies","habits":"tobacco,alcohol,exercise","psychosocial":"work,family,stressors"},"hints":["h1","h2","h3"],"personality":"behaviour in interview"}`
+    :`Generador de casos clínicos para simulación de anamnesis médica. Responde SOLO JSON válido sin markdown:
+{"paciente":{"nombre":"completo","edad":número,"sexo":"hombre|mujer","ocupacion":"profesión","avatar":"emoji"},"motivo_consulta_visible":"frase primera persona","diagnostico_oculto":"diagnóstico preciso","historia_completa":{"enfermedad_actual":"síntomas,cronología,modificadores","antecedentes_personales":"enfermedades,cirugías","antecedentes_familiares":"patologías familiares","medicacion":"fármacos y alergias","habitos":"tabaco,alcohol,ejercicio,dieta","contexto_psicosocial":"laboral,familiar,estrés"},"pistas_a_soltar":["p1","p2","p3"],"perfil_personalidad":"comportamiento"}`;
+  try{
+    const raw=await callAI([{role:'user',content:`Specialty: ${ST.sp}. Difficulty: ${ST.df}. Language: ${LG}.`}],sys,1400,true);
+    const d=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    if(en&&d.patient){const p=d.patient,h=d.full_history;d.paciente={nombre:p.name,edad:p.age,sexo:p.sex,ocupacion:p.occupation,avatar:p.avatar};d.motivo_consulta_visible=d.chief_complaint;d.diagnostico_oculto=d.hidden_diagnosis;d.historia_completa={enfermedad_actual:h.hpi,antecedentes_personales:h.pmh,antecedentes_familiares:h.fh,medicacion:h.medications,habitos:h.habits,contexto_psicosocial:h.psychosocial};d.pistas_a_soltar=d.hints||[];d.perfil_personalidad=d.personality}
+    ST.cas=d;buildBrief();
+  }catch(e){showScr('ss');toast('Error: '+e.message,'err')}
+}
+
+function buildBrief(){
+  const c=ST.cas,p=c.paciente;
+  const ml={practice:T('m1'),exam:T('m2'),tutor:T('m3')},mi={practice:'📚',exam:'📝',tutor:'🎓'};
+  document.getElementById('ccard').innerHTML=`
+    <div style="display:flex;gap:7px;margin-bottom:9px;flex-wrap:wrap"><div class="ctag">🎭 ${ST.df} · ${ST.sp}</div><div class="mbadge ${ST.md}">${mi[ST.md]} ${ml[ST.md]}</div></div>
+    <h2>${p.nombre}</h2>
+    <div class="cm"><span>${p.avatar} <strong>${p.edad} ${LG==='es'?'años':'years'} · ${p.sexo}</strong></span><span>💼 ${p.ocupacion}</span></div>
+    <div class="cq">"${c.motivo_consulta_visible}"</div>
+    <div class="ci"><p>${LG==='es'?'El paciente entra a tu consulta con esta queja. <strong>Realiza la anamnesis completa.</strong>':'The patient enters your office with this complaint. <strong>Take a complete clinical history.</strong>'}</p>
+    <p style="margin-top:6px;font-size:11px;color:var(--t3)">${LG==='es'?'Al finalizar, declararás tu hipótesis diagnóstica.':'At the end, you will state your diagnostic hypothesis.'}</p>
+    ${ST.stt?`<p style="margin-top:6px;font-size:11px;color:var(--pl)">🎙 ${LG==='es'?'Modo voz activo.':'Voice mode active.'}</p>`:''}
+    </div>`;
+  CL().forEach(it=>ST.cls[it.id]='pending');buildCL();showScr('sca');
+}
+
+/* ═══ CHECKLIST ═══ */
+function buildCL(){
+  const cl=CL(),done=cl.filter(it=>ST.cls[it.id]==='done').length,pct=Math.round(done/cl.length*100);
+  document.getElementById('clside').innerHTML=cl.map(it=>{const s=ST.cls[it.id];return`<div class="cl ${s==='done'?'di':''}" id="cl-${it.id}"><div class="cdo ${s==='done'?'done':s==='partial'?'par':''}">${s==='done'?'✓':s==='partial'?'~':''}</div><span>${it.i} ${it.label}</span></div>`}).join('');
+  document.getElementById('cof').style.width=pct+'%';document.getElementById('covpct').textContent=pct;
+  const cp=document.getElementById('cvp');if(cp){cp.textContent=pct+'%';cp.className='cvp'+(pct>=75?' hi':pct>=40?' mid':'')}
+}
+function updCL(ids){ids.forEach(id=>{if(ST.cls[id]!=='done')ST.cls[id]='done'});buildCL()}
+function detCov(t){
+  const s=t.toLowerCase();
+  const P={es:{motivo:['me duele','tengo','llevo','desde hace','me pasa','noto','vengo','siento'],ea:['empezó','comenzó','días','semanas','meses','empeora','mejora','cuando','ayer','repente'],ap:['antes tuve','he tenido','operaron','ingresado','diagnosticaron','pequeño'],af:['padre','madre','abuelos','familia','hermano','hermana'],medicacion:['tomo','pastillas','medicamento','alergia','recetaron','inyección'],habitos:['fumo','alcohol','bebo','deporte','ejercicio','dieta','como'],psicosocial:['trabajo','vivo','convivo','pareja','familia','estrés','preocupa','casa'],revSistemas:['orina','deposiciones','fiebre','peso','apetito','sueño','cansancio','vista','respirar']},en:{motivo:['i have','i feel','i ve been','since','started','experiencing'],ea:['began','started','days','weeks','months','worse','better','when','yesterday','suddenly'],ap:['i had','i have had','surgery','hospitalised','diagnosed','childhood'],af:['father','mother','grandfather','family','brother','sister'],medicacion:['i take','pills','medication','allergy','prescribed','injection'],habitos:['smoke','alcohol','drink','exercise','diet','eat'],psicosocial:['work','live','partner','family','stress','lately','worried'],revSistemas:['urine','stools','fever','weight','appetite','sleep','tired','breathing']}};
+  const pp=P[LG]||P.es;const cov=[];Object.entries(pp).forEach(([k,ws])=>{if(ws.some(w=>s.includes(w)))cov.push(k)});updCL(cov);
+}
+
+/* ═══ CHAT ═══ */
+function beginChat(){
+  const p=ST.cas.paciente;
+  document.getElementById('pav').textContent=p.avatar;document.getElementById('pnbar').textContent=p.nombre;
+  document.getElementById('pstbar').textContent=`${p.edad} ${LG==='es'?'años':'years'} · ${p.ocupacion}`;
+  ST.his=[{role:'user',content:'(médico entra)'},{role:'assistant',content:ST.cas.motivo_consulta_visible}];
+  ST.turns=0;ST.tth=0;document.getElementById('msgs').innerHTML='';document.getElementById('tcount').textContent='0';
+  document.getElementById('csb').className='csb'+(ST.md==='exam'?' exam-mode':'');
+  document.getElementById('covSec').style.display=ST.md==='exam'?'none':'';
+  ST.t0=Date.now();ST.ti=setInterval(updT,1000);
+  showScr('sch');
+  addMsg('patient',ST.cas.motivo_consulta_visible);
+  addSys(LG==='es'?'La consulta ha comenzado. Preséntate y explora ordenadamente.':'Consultation started. Introduce yourself and explore systematically.');
+  if(ST.tts)setTimeout(()=>speak(ST.cas.motivo_consulta_visible),600);
+  document.getElementById('bmc').style.display=ST.stt?'flex':'none';
+}
+function updT(){
+  const s=Math.floor((Date.now()-ST.t0)/1000),str=fmtT(s),cls='tb'+(s>1500?' danger':s>900?' warn':'');
+  ['tbt','tbs'].forEach(id=>{const el=document.getElementById(id);if(el){el.textContent=str;el.className=cls}});
+}
+function addMsg(role,text){
+  const msgs=document.getElementById('msgs'),d=document.createElement('div');d.className='msg '+role;
+  const lbl=role==='user'?'Dr/a. '+ST.stu:role==='patient'?ST.cas.paciente.nombre:'Sistema';
+  const em=role==='user'?'🩺':role==='patient'?ST.cas.paciente.avatar:'ℹ️';
+  const tb=(role==='patient'&&'speechSynthesis'in window)?`<button class="ttsb" onclick="ttsPlay(this,${JSON.stringify(text)})">🔊</button>`:'';
+  d.innerHTML=`<div class="mav">${em}</div><div class="mbub"><div class="mr">${lbl}</div>${text.replace(/\n/g,'<br>')}${tb}</div>`;
+  msgs.appendChild(d);scrl();
+}
+function addSys(t){const d=document.createElement('div');d.className='msg system';d.innerHTML=`<div class="mav">ℹ️</div><div class="mbub">${t}</div>`;document.getElementById('msgs').appendChild(d);scrl()}
+function addTFB(t){const d=document.createElement('div');d.className='msg tfb';d.innerHTML=`<div class="mav">🎓</div><div class="mbub"><div class="mr">Tutor</div>${t}</div>`;document.getElementById('msgs').appendChild(d);scrl()}
+function showTyp(){const d=document.createElement('div');d.className='msg patient';d.id='typ';d.innerHTML=`<div class="mav">${ST.cas?.paciente.avatar||'🧑'}</div><div class="mbub"><div class="mr">${ST.cas?.paciente.nombre||'Paciente'}</div><div class="td"><span></span><span></span><span></span></div></div>`;document.getElementById('msgs').appendChild(d);scrl()}
+function rmTyp(){document.getElementById('typ')?.remove()}
+async function sendMsg(){
+  const inp=document.getElementById('cin'),txt=inp.value.trim();if(!txt)return;
+  inp.value='';inp.style.height='auto';
+  const bse=document.getElementById('bse');bse.disabled=true;bse.classList.add('loading');bse.textContent='↻';
+  ST.his.push({role:'user',content:txt});ST.turns++;ST.tth++;
+  document.getElementById('tcount').textContent=ST.turns;
+  addMsg('user',txt);showTyp();showLoad(true);
+  try{
+    const c=ST.cas,en=LG==='en';
+    const sys=en
+      ?`You are ${c.paciente.nombre}, ${c.paciente.edad}-year-old patient (${c.paciente.sexo}), ${c.paciente.ocupacion}, at a ${ST.sp} consultation.
+PRIVATE: HPI: ${c.historia_completa.enfermedad_actual}|PMH: ${c.historia_completa.antecedentes_personales}|FH: ${c.historia_completa.antecedentes_familiares}|Meds: ${c.historia_completa.medicacion}|Habits: ${c.historia_completa.habitos}|Psychosocial: ${c.historia_completa.contexto_psicosocial}
+HINTS if open questions: ${(c.pistas_a_soltar||[]).join('|')}
+PERSONALITY: ${c.perfil_personalidad}
+RULES: Only answer what is explicitly asked. Lay language. Appropriate emotions. Never hint diagnosis. Max 4-5 sentences. No lists.`
+      :`Eres ${c.paciente.nombre}, ${c.paciente.edad} años (${c.paciente.sexo}), ${c.paciente.ocupacion}, consulta de ${ST.sp}.
+PRIVADO: EA: ${c.historia_completa.enfermedad_actual}|AP: ${c.historia_completa.antecedentes_personales}|AF: ${c.historia_completa.antecedentes_familiares}|Med: ${c.historia_completa.medicacion}|Háb: ${c.historia_completa.habitos}|PS: ${c.historia_completa.contexto_psicosocial}
+PISTAS si preguntan abierto: ${(c.pistas_a_soltar||[]).join('|')}
+PERSONALIDAD: ${c.perfil_personalidad}
+REGLAS: Solo responde lo que preguntan explícitamente. Vocabulario lego. Emociones apropiadas. Nunca insinúes diagnóstico. Máx 4-5 oraciones. Sin listas.`;
+    const reply=await callAI(ST.his,sys,380);
+    ST.his.push({role:'assistant',content:reply});
+    rmTyp();addMsg('patient',reply);detCov(reply);if(ST.tts)speak(reply);
+    if(ST.md==='tutor'&&ST.tth>=5){ST.tth=0;await tutorHint()}
+  }catch(e){rmTyp();toast(e.message,'err')}
+  finally{showLoad(false);bse.disabled=false;bse.classList.remove('loading');bse.textContent='➤'}
+}
+async function tutorHint(){
+  const miss=CL().filter(it=>ST.cls[it.id]==='pending').map(it=>it.label);if(!miss.length)return;
+  const sys=LG==='en'
+    ?`You are a friendly medical tutor. The student has not explored: ${miss.join(', ')}. Give a brief encouraging hint (1-2 sentences) without telling them literally what to ask.`
+    :`Eres un tutor médico amable. El estudiante aún no ha explorado: ${miss.join(', ')}. Da una pista breve y motivadora (1-2 frases) sin decirle literalmente qué preguntar. Sé sutil.`;
+  try{const h=await callAI([{role:'user',content:'hint'}],sys,100);addTFB(h);const bar=document.getElementById('thint');bar.classList.add('show');document.getElementById('thintt').textContent=h;setTimeout(()=>bar.classList.remove('show'),8000)}catch(e){}
+}
+
+/* ═══ END ═══ */
+function confirmEnd(){if(ST.turns<3){toast(T('et2'),'err');return}document.getElementById('mEnd').classList.add('open')}
+function closeEnd(){document.getElementById('mEnd').classList.remove('open')}
+function openHypo(){closeEnd();document.getElementById('mHypo').classList.add('open')}
+function closeHypo(){document.getElementById('mHypo').classList.remove('open')}
+function submitHypo(){const v=document.getElementById('hypoIn').value.trim();if(!v){const ta=document.getElementById('hypoIn');ta.style.borderColor='var(--rd)';ta.placeholder=T('eh');return}document.getElementById('hypoIn').style.borderColor='';ST.hyp=v;closeHypo();doEnd(v)}
+function doEnd(h){ST.hyp=h||'';document.getElementById('mEnd').classList.remove('open');clearInterval(ST.ti);evalSess()}
+
+/* ═══ EVALUATION ═══ */
+async function evalSess(){
+  showScr('sg');gstep(0);document.getElementById('gl').textContent=T('ec');showLoad(true);
+  const c=ST.cas,el=Math.floor((Date.now()-ST.t0)/1000);
+  const conv=ST.his.slice(2).map(h=>`[${h.role==='user'?'MÉDICO':'PACIENTE'}] ${h.content}`).join('\n\n');
+  const lt=T('ltxt');
+  const sys=`Evaluador experto en educación médica. Responde SOLO JSON válido sin markdown.`;
+  const msg=`Evalúa anamnesis en ${ST.sp} (dificultad ${ST.df}, idioma ${LG}).
+HISTORIA REAL: Dx: ${c.diagnostico_oculto}|EA: ${c.historia_completa.enfermedad_actual}|AP: ${c.historia_completa.antecedentes_personales}|AF: ${c.historia_completa.antecedentes_familiares}|Med: ${c.historia_completa.medicacion}|Háb: ${c.historia_completa.habitos}|PS: ${c.historia_completa.contexto_psicosocial}
+HIPÓTESIS: "${ST.hyp||'No declarada'}"
+CONV (${ST.turns} turnos, ${fmtT(el)}): ${conv}
+JSON (textos en ${LG==='es'?'español':'English'}):
+{"puntuacion_global":0.0,"calificacion":"${lt[0]}|${lt[1]}|${lt[2]}|${lt[3]}","puntuacion_checklist":0,
+"checklist":{"motivo":{"estado":"completo|parcial|no_explorado","puntos":0,"max":15,"observacion":""},"ea":{"estado":"completo|parcial|no_explorado","puntos":0,"max":20,"observacion":""},"ap":{"estado":"completo|parcial|no_explorado","puntos":0,"max":15,"observacion":""},"af":{"estado":"completo|parcial|no_explorado","puntos":0,"max":10,"observacion":""},"medicacion":{"estado":"completo|parcial|no_explorado","puntos":0,"max":10,"observacion":""},"habitos":{"estado":"completo|parcial|no_explorado","puntos":0,"max":10,"observacion":""},"psicosocial":{"estado":"completo|parcial|no_explorado","puntos":0,"max":10,"observacion":""},"revSistemas":{"estado":"completo|parcial|no_explorado","puntos":0,"max":10,"observacion":""}},
+"rubrica":[{"dimension":"","icono":"","nivel":0,"descripcion_nivel":["","","",""],"feedback":""}],
+"competencias":{"exploracion":{"puntuacion":0,"comentario":""},"comunicacion":{"puntuacion":0,"comentario":""},"orden":{"puntuacion":0,"comentario":""},"empatia":{"puntuacion":0,"comentario":""},"orientacion":{"puntuacion":0,"comentario":""},"eficiencia":{"puntuacion":0,"comentario":""}},
+"anotaciones_transcripcion":[{"turno":1,"tipo":"abierta|cerrada|compuesta|directiva|buena_practica|oportunidad_perdida","etiqueta":"","comentario":""}],
+"resumen":"","fortalezas":["","",""],"areas_mejora":["","",""],
+"hipotesis_valoracion":{"coincide":"correcto|parcial|incorrecto","comentario":""},
+"recomendaciones_aprendizaje":["","",""]}`;
+  try{
+    await new Promise(r=>setTimeout(r,200));gstep(1);
+    const raw=await callAI([{role:'user',content:msg}],sys,2500,true);
+    ST.ev=JSON.parse(raw.replace(/```json|```/g,'').trim());
+    await new Promise(r=>setTimeout(r,200));gstep(2);
+    await saveS({date:new Date().toISOString(),student:ST.stu,specialty:ST.sp,difficulty:ST.df,mode:ST.md,lang:LG,patientName:c.paciente.nombre,patientAvatar:c.paciente.avatar,score:ST.ev.puntuacion_global,calificacion:ST.ev.calificacion,checklistScore:ST.ev.puntuacion_checklist,competencias:ST.ev.competencias,turns:ST.turns,elapsed:el,hypothesis:ST.hyp,diagnostico:c.diagnostico_oculto}).catch(()=>{});
+    toast(T('ok'),'ok');
+    document.getElementById('navpill').style.display='flex';
+    renderEval(el);
+  }catch(e){toast('Error: '+e.message,'err');showScr('sch')}
+  finally{showLoad(false)}
+}
+
+/* ═══ RENDER EVAL ═══ */
+function CC(cal){const m={[T('ltxt')[0]]:'var(--rd)',[T('ltxt')[1]]:'var(--yw)',[T('ltxt')[2]]:'var(--pl)',[T('ltxt')[3]]:'var(--gn)'};return m[cal]||'var(--tx)'}
+function renderEval(el){
+  const ev=ST.ev,c=ST.cas,lt=T('ltxt');
+  document.getElementById('scorecards').innerHTML=`<div class="sco"><div class="sn">${ev.puntuacion_global.toFixed(1)}</div><div class="sl">Global/10</div></div><div class="sco"><div class="sn">${ev.puntuacion_checklist}</div><div class="sl">Checklist/100</div></div><div class="sco"><div class="sn">${ST.turns}</div><div class="sl">${T('sbt')}</div></div><div class="sco"><div class="sn" style="font-size:17px;color:${CC(ev.calificacion)};-webkit-text-fill-color:${CC(ev.calificacion)}">${ev.calificacion}</div><div class="sl">${LG==='es'?'Calificación':'Grade'}</div></div><div class="sco"><div class="sn" style="font-size:20px">${fmtT(el)}</div><div class="sl">${LG==='es'?'Tiempo':'Time'}</div></div>`;
+  const lc=['l0','l1','l2','l3'];
+  document.getElementById('tp1').innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:15px"><h3 style="font-family:'Lora',serif;font-size:15px;margin-bottom:5px">${T('t1')}</h3><p style="font-size:11px;color:var(--t2)">0→3: ${lt.join(' → ')}. ${LG==='es'?'Nivel resaltado = tu desempeño.':'Highlighted level = your performance.'}</p></div>
+    <div style="display:flex;flex-direction:column;gap:8px">${(ev.rubrica||[]).map(r=>`<div class="ri"><div class="rh"><span class="ric2">${r.icono}</span><span class="rti">${r.dimension}</span><span class="rsc ${lc[r.nivel]||'l0'}">${lt[r.nivel]||'?'}</span></div><div class="rlvs">${(r.descripcion_nivel||[]).map((d,i)=>`<div class="rlv ${i===r.nivel?'hit':''}"><div class="rll">${lt[i]}</div>${d}</div>`).join('')}</div><div class="rfb">💬 ${r.feedback}</div></div>`).join('')}</div>
+    <div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:15px;display:flex;flex-direction:column;gap:12px">
+      <div><h3 style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t2);margin-bottom:8px">🎯 ${LG==='es'?'Síntesis':'Summary'}</h3><div class="qt"><p>${ev.resumen}</p></div></div>
+      <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--gn);margin-bottom:5px">✓ ${LG==='es'?'Fortalezas':'Strengths'}</div><ul class="sli g">${(ev.fortalezas||[]).map(f=>`<li>${f}</li>`).join('')}</ul></div>
+      <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--a2);margin-bottom:5px">↗ ${LG==='es'?'Áreas de mejora':'Areas to improve'}</div><ul class="sli o">${(ev.areas_mejora||[]).map(a=>`<li>${a}</li>`).join('')}</ul></div>
+      <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--t3);margin-bottom:5px">📚 ${LG==='es'?'Recomendaciones':'Recommendations'}</div><ul class="sli">${(ev.recomendaciones_aprendizaje||[]).map(r=>`<li style="font-size:11.5px">${r}</li>`).join('')}</ul></div>
+    </div>`;
+  const cs=COMPS.map(cm=>{const d=ev.competencias?.[cm.id];return{...cm,score:d?.puntuacion||0,comment:d?.comentario||''}});
+  document.getElementById('tp2').innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:15px"><h3 style="font-family:'Lora',serif;font-size:15px;margin-bottom:12px">${T('t2')}</h3><div style="display:flex;justify-content:center;margin-bottom:10px">${buildRadar(cs)}</div></div>
+    <div class="cgr">${cs.map(cm=>{const pct=(cm.score/10)*100,col=pct>=80?'var(--gn)':pct>=60?'var(--pl)':pct>=40?'var(--yw)':'var(--rd)';return`<div class="cc2"><div class="cn2">${LG==='es'?cm.es:cm.en}</div><div class="cs2" style="color:${col};-webkit-text-fill-color:${col}">${cm.score.toFixed(1)}</div><div class="cb"><div class="cbf" style="width:${pct}%;background:${col}"></div></div><div class="cco">${cm.comment}</div></div>`}).join('')}</div>`;
+  const an=ev.anotaciones_transcripcion||[],am={};an.forEach(a=>{am[a.turno]=a});let mt=0;
+  const th=ST.his.slice(2).map(h=>{if(h.role==='user'){mt++;const a=am[mt];const tags=a?`<div class="tatg"><span class="qtg ${a.tipo}" title="${a.comentario||''}">${a.etiqueta||a.tipo}</span></div>`:'';return`<div class="tam um"><div class="tar">${LG==='es'?'Médico':'Doctor'}</div><div class="tat">${h.content.replace(/\n/g,'<br>')}${tags}</div></div>`}return`<div class="tam pm"><div class="tar">${LG==='es'?'Paciente':'Patient'}</div><div class="tat">${h.content.replace(/\n/g,'<br>')}</div></div>`}).join('');
+  const tgl=`<div style="display:flex;gap:5px;flex-wrap:wrap;padding:8px 11px;background:var(--bg3);border-radius:7px;font-size:10px"><span class="qtg abierta">${LG==='es'?'Abierta':'Open'}</span> <span class="qtg cerrada">${LG==='es'?'Cerrada':'Closed'}</span> <span class="qtg compuesta">${LG==='es'?'Compuesta':'Compound'}</span> <span class="qtg directiva">${LG==='es'?'Directiva':'Leading'}</span> <span class="qtg buena_practica">${LG==='es'?'Buena práctica':'Good practice'}</span> <span class="qtg oportunidad_perdida">${LG==='es'?'Oportunidad perdida':'Missed opportunity'}</span></div>`;
+  document.getElementById('tp3').innerHTML=`<div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:13px"><h3 style="font-family:'Lora',serif;font-size:14px;margin-bottom:8px">${T('t3')}</h3>${tgl}</div><div style="display:flex;flex-direction:column;gap:7px">${th}</div>`;
+  const chk=CL().map(it=>{const item=ev.checklist?.[it.id];if(!item)return'';const sm={completo:'ok',parcial:'par',no_explorado:'no'},im={completo:'✓',parcial:'~',no_explorado:'✗'},s=sm[item.estado]||'no';return`<div class="cer"><div class="cei ${s}">${im[item.estado]||'?'}</div><span style="flex:1">${it.i} ${it.label}</span><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3)">${item.puntos}/${item.max||it.w}</span></div><div style="font-size:10px;color:var(--t3);padding:1px 22px 4px;font-style:italic">${item.observacion}</div>`}).join('');
+  document.getElementById('tp4').innerHTML=`
+    <div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:13px"><h3 style="font-family:'Lora',serif;font-size:14px;margin-bottom:11px">${T('t4')}</h3><div style="display:flex;flex-direction:column;gap:5px">${chk}</div></div>
+    <div style="background:var(--bg2);border:1px solid var(--brd);border-radius:var(--rad);padding:13px">
+      <h3 style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t2);margin-bottom:9px">📊 ${LG==='es'?'Distribución':'Distribution'}</h3>
+      ${CL().map(it=>{const item=ev.checklist?.[it.id],pts=item?.puntos||0,max=item?.max||it.w,pct=(pts/max)*100,col=pct>=80?'var(--gn)':pct>=50?'var(--yw)':'var(--rd)';return`<div style="display:flex;align-items:center;gap:7px;font-size:11px;margin-bottom:5px"><span style="width:140px;color:var(--t2)">${it.label}</span><div style="flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:3px;transition:width .5s"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--t3);min-width:34px;text-align:right">${pts}/${max}</span></div>`}).join('')}
+    </div>`;
+  if(ST.hyp&&ev.hipotesis_valoracion){
+    const hv=ev.hipotesis_valoracion,vc={correcto:'ok',parcial:'par',incorrecto:'bad'}[hv.coincide]||'par',vi={correcto:'✅',parcial:'⚠️',incorrecto:'❌'}[hv.coincide]||'⚠️';
+    document.getElementById('hypoC').style.display='block';
+    document.getElementById('hypoC').innerHTML=`<h3 style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--t2);margin-bottom:11px">🔍 ${LG==='es'?'Hipótesis diagnóstica':'Diagnostic hypothesis'}</h3><div class="hcc"><div class="hcl"><div class="hll">${T('hty')}</div><div class="hvl">${ST.hyp}</div></div><div class="hcl"><div class="hll">${T('hdx')}</div><div class="hvl" style="color:var(--a2);font-weight:600">${c.diagnostico_oculto}</div></div></div><div class="hvr ${vc}">${vi} ${hv.comentario}</div>`;
+  }
+  const hc=c.historia_completa;
+  document.getElementById('hcon').innerHTML=`<div class="hf"><span class="hl">${LG==='es'?'Diagnóstico':'Diagnosis'}</span><span class="hv" style="color:var(--a2);font-weight:600">${c.diagnostico_oculto}</span></div>${[['enfermedad_actual',LG==='es'?'EA':'HPI'],['antecedentes_personales',LG==='es'?'AP':'PMH'],['antecedentes_familiares',LG==='es'?'AF':'FH'],['medicacion',LG==='es'?'Medicación':'Medications'],['habitos',LG==='es'?'Hábitos':'Habits'],['contexto_psicosocial',LG==='es'?'Psicosocial':'Psychosocial']].map(([k,l])=>`<div class="hf"><span class="hl">${l}</span><span class="hv">${hc[k]||''}</span></div>`).join('')}`;
+  document.getElementById('evsub').textContent=`${ST.stu} · ${c.paciente.nombre} · ${ST.sp} · ${ST.df} · ${new Date().toLocaleDateString(LG==='es'?'es-ES':'en-GB')}`;
+  showtab('tp1',document.querySelector('.etab'));showScr('sev');
+}
+
+/* ═══ RADAR ═══ */
+function buildRadar(comps){
+  const N=comps.length,cx=150,cy=140,R=105,rm=18;
+  const ang=comps.map((_,i)=>((2*Math.PI*i)/N)-Math.PI/2);
+  const pt=(v,i)=>{const r=rm+(v/10)*(R-rm);return[cx+r*Math.cos(ang[i]),cy+r*Math.sin(ang[i])]};
+  const ptR=(r,i)=>[cx+r*Math.cos(ang[i]),cy+r*Math.sin(ang[i])];
+  const rings=[2,4,6,8,10].map(v=>{const r2=rm+(v/10)*(R-rm);return`<polygon points="${ang.map((_,i)=>ptR(r2,i).join(',')).join(' ')}" fill="none" stroke="var(--brd)" stroke-width="1"/>`}).join('');
+  const spokes=ang.map((_,i)=>{const[x2,y2]=ptR(R,i);return`<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="var(--brd)" stroke-width="1"/>`}).join('');
+  const data=comps.map((_,i)=>pt(comps[i].score,i).join(',')).join(' ');
+  const labels=comps.map((cm,i)=>{const[x,y]=ptR(R+18,i),a=x<cx-5?'end':x>cx+5?'start':'middle';return`<text x="${x}" y="${y}" text-anchor="${a}" font-family="Inter,sans-serif" font-size="9.5" fill="var(--t2)" dominant-baseline="middle">${LG==='es'?cm.es.split(' ')[0]:cm.en.split(' ')[0]}</text>`}).join('');
+  const dots=comps.map((cm,i)=>{const[x,y]=pt(cm.score,i);return`<circle cx="${x}" cy="${y}" r="4" fill="${cm.c}" opacity=".9"/>`}).join('');
+  return`<svg style="max-width:300px;width:100%" viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg">${rings}${spokes}<polygon points="${data}" fill="rgba(58,184,224,.13)" stroke="var(--pl)" stroke-width="2"/>${dots}${labels}</svg>`;
+}
+
+/* ═══ PROGRESS ═══ */
+async function renderProg(){
+  let sessions=[];try{sessions=await getS()}catch(e){}
+  sessions.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  const n=sessions.length,avg=n?sessions.reduce((s,x)=>s+x.score,0)/n:0,best=n?Math.max(...sessions.map(x=>x.score)):0,totalMin=n?Math.round(sessions.reduce((s,x)=>s+(x.elapsed||0),0)/60):0;
+  document.getElementById('pstats').innerHTML=`<div class="psc"><div class="psn">${n}</div><div class="psl">${T('tS')}</div></div><div class="psc"><div class="psn">${n?avg.toFixed(1):'—'}</div><div class="psl">${T('aS')}</div></div><div class="psc"><div class="psn">${n?best.toFixed(1):'—'}</div><div class="psl">${T('bS')}</div></div><div class="psc"><div class="psn">${totalMin}m</div><div class="psl">${T('tT')}</div></div>`;
+  if(n>0){
+    const ac={};COMPS.forEach(cm=>{const vs=sessions.map(s=>s.competencias?.[cm.id]?.puntuacion||0);ac[cm.id]={score:vs.reduce((a,v)=>a+v,0)/vs.length}});
+    const cs=COMPS.map(cm=>({...cm,score:ac[cm.id].score,comment:''}));
+    document.getElementById('rsvg').innerHTML=buildRadar(cs);
+    document.getElementById('rlg').innerHTML=cs.map(c=>`<div class="rli"><div class="rld" style="background:${c.c}"></div>${LG==='es'?c.es:c.en} <strong>${c.score.toFixed(1)}</strong></div>`).join('');
+  } else {document.getElementById('rsvg').innerHTML=`<p style="color:var(--t3);font-size:12px;text-align:center;padding:20px">${T('noS')}</p>`;document.getElementById('rlg').innerHTML=''}
+  renderEvoChart(sessions);
+  if(!n){document.getElementById('histlist').innerHTML=`<div class="hempty">${T('noS')}</div>`;return}
+  document.getElementById('histlist').innerHTML=sessions.slice(0,15).map(s=>{
+    const mi={practice:'📚',exam:'📝',tutor:'🎓'}[s.mode]||'📚',d=new Date(s.date).toLocaleDateString(LG==='es'?'es-ES':'en-GB');
+    return`<div class="hit2"><div class="hiav">${s.patientAvatar||'🧑'}</div><div class="him"><div class="hin">${s.patientName||'—'}</div><div class="hims">${mi} ${s.specialty||''} · ${s.difficulty||''} · ${d}</div></div><div class="his"><div class="hisn" style="color:${CC(s.calificacion)};-webkit-text-fill-color:${CC(s.calificacion)}">${(s.score||0).toFixed(1)}</div><div class="hisl">${s.calificacion||'—'}</div></div></div>`;
+  }).join('');
+}
+function renderEvoChart(sessions){
+  const svg=document.getElementById('csvg');svg.innerHTML='';
+  if(sessions.length<2){svg.innerHTML=`<text x="50%" y="50%" text-anchor="middle" font-family="Inter,sans-serif" font-size="12" fill="var(--t3)">${T('noS')}</text>`;return}
+  const data=[...sessions].reverse().slice(-20),W=svg.clientWidth||600,H=148;
+  const pad={l:28,r:12,t:13,b:18};
+  const xS=i=>pad.l+(i/(data.length-1))*(W-pad.l-pad.r),yS=v=>pad.t+(1-v/10)*(H-pad.t-pad.b);
+  [2,4,6,8,10].forEach(v=>{const y=yS(v);svg.innerHTML+=`<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="var(--brd)" stroke-width="1"/><text x="${pad.l-3}" y="${y+4}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9" fill="var(--t3)">${v}</text>`});
+  svg.innerHTML+=`<polyline points="${data.map((s,i)=>`${xS(i)},${yS(s.score)}`).join(' ')}" fill="none" stroke="var(--pl)" stroke-width="2" stroke-linejoin="round"/>`;
+  data.forEach((s,i)=>svg.innerHTML+=`<circle cx="${xS(i)}" cy="${yS(s.score)}" r="4" fill="${CC(s.calificacion)}"/>`);
+}
+async function clearHist(){if(!confirm(LG==='es'?'¿Eliminar todo el historial?':'Delete all history?'))return;try{await clearS();toast(T('cl'),'inf');renderProg()}catch(e){toast('Error','err')}}
+
+/* ═══ EXPORTS ═══ */
+function expJSON(){const blob=new Blob([JSON.stringify({fecha:new Date().toISOString(),estudiante:ST.stu,especialidad:ST.sp,dificultad:ST.df,modo:ST.md,lang:LG,modelo:getModel(),hipotesis:ST.hyp,caso:ST.cas,conversacion:ST.his.slice(2),evaluacion:ST.ev,turnos:ST.turns},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`anamnesia_${ST.stu.replace(/\s+/g,'_')}_${Date.now()}.json`;a.click()}
+function expHTML(){
+  if(!ST.ev){toast(LG==='es'?'No hay evaluación disponible':'No evaluation available','err');return}
+  const ev=ST.ev,c=ST.cas,lt=T('ltxt');
+  const fecha=new Date().toLocaleDateString(LG==='es'?'es-ES':'en-GB',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  const hcls={'Insuficiente':'#c62828','Sufficient':'#c62828','Suficiente':'#e65100','Insufficient':'#e65100','Notable':'#1565c0','Good':'#1565c0','Excelente':'#2e7d32','Excellent':'#2e7d32'};
+  const cs=COMPS.map(cm=>{const d=ev.competencias?.[cm.id];return{...cm,score:d?.puntuacion||0,comment:d?.comentario||''}});
+  const lcols=['#c62828','#e65100','#1565c0','#2e7d32'];
+  // inline radar for report
+  const N=cs.length,cx=210,cy=190,R=140,rm=22;
+  const ang=cs.map((_,i)=>((2*Math.PI*i)/N)-Math.PI/2);
+  const ptR=(r,i)=>[cx+r*Math.cos(ang[i]),cy+r*Math.sin(ang[i])];
+  const ptV=(v,i)=>{const r=rm+(v/10)*(R-rm);return[cx+r*Math.cos(ang[i]),cy+r*Math.sin(ang[i])]}
+  const radarSVG=`<svg width="420" height="380" xmlns="http://www.w3.org/2000/svg" style="max-width:100%">
+    ${[2,4,6,8,10].map(v=>{const r2=rm+(v/10)*(R-rm);return`<polygon points="${ang.map((_,i)=>ptR(r2,i).join(',')).join(' ')}" fill="none" stroke="#e5e7eb" stroke-width="1"/>`}).join('')}
+    ${ang.map((_,i)=>{const[x2,y2]=ptR(R,i);return`<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="#e5e7eb" stroke-width="1"/>`}).join('')}
+    <polygon points="${cs.map((_,i)=>ptV(cs[i].score,i).join(',')).join(' ')}" fill="rgba(21,101,192,.11)" stroke="#1565c0" stroke-width="2" stroke-linejoin="round"/>
+    ${cs.map((cm,i)=>{const[x,y]=ptV(cm.score,i);return`<circle cx="${x}" cy="${y}" r="5" fill="${cm.c}"/><text x="${x}" y="${y-9}" text-anchor="middle" font-size="9" fill="${cm.c}" font-weight="bold">${cm.score.toFixed(0)}</text>`}).join('')}
+    ${cs.map((cm,i)=>{const[x,y]=ptR(R+24,i),a=x<cx-5?'end':x>cx+5?'start':'middle';return`<text x="${x}" y="${y}" text-anchor="${a}" font-family="Arial,sans-serif" font-size="11" fill="#555" dominant-baseline="middle">${LG==='es'?cm.es:cm.en}</text>`}).join('')}
+  </svg>`;
+  const convH=ST.his.slice(2).map(h=>{const role=h.role==='user'?(LG==='es'?'Médico':'Doctor'):(LG==='es'?'Paciente':'Patient'),bg=h.role==='user'?'#e8f4fd':'#fef9f0',col=h.role==='user'?'#1565c0':'#e65100';return`<div style="margin-bottom:10px;padding:9px 13px;background:${bg};border-left:3px solid ${col};border-radius:4px"><strong style="color:${col};font-size:10px;text-transform:uppercase">${role}</strong><p style="margin-top:3px;font-size:13px;line-height:1.6">${h.content}</p></div>`}).join('');
+  const rubrH=(ev.rubrica||[]).map(r=>`<div style="margin-bottom:12px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden"><div style="display:flex;align-items:center;gap:9px;padding:9px 13px;background:#f9fafb"><span style="font-size:16px">${r.icono}</span><strong style="flex:1;font-size:13px">${r.dimension}</strong><span style="font-size:11px;font-weight:700;color:${lcols[r.nivel]||'#999'}">${lt[r.nivel]||'?'}</span></div><table style="width:100%;border-collapse:collapse;border-top:1px solid #e5e7eb"><tr>${(r.descripcion_nivel||[]).map((d,i)=>`<td style="padding:7px 9px;font-size:11px;border-right:1px solid #f0f0f0;background:${i===r.nivel?'#e8f0fe':'#fff'};color:${i===r.nivel?lcols[i]:'#666'};font-weight:${i===r.nivel?'600':'400'}"><div style="font-size:8.5px;text-transform:uppercase;letter-spacing:.07em;color:${i===r.nivel?lcols[i]:'#aaa'};margin-bottom:3px">${lt[i]}</div>${d}</td>`).join('')}</tr></table><div style="padding:7px 13px;font-size:11px;color:#777;border-top:1px solid #f5f5f5;background:#fafafa;font-style:italic">💬 ${r.feedback}</div></div>`).join('');
+  const hypoH=ST.hyp&&ev.hipotesis_valoracion?`<section><h2>${LG==='es'?'🔍 Hipótesis diagnóstica':'🔍 Diagnostic hypothesis'}</h2><table style="width:100%;border-collapse:collapse;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden"><tr><th style="background:#f9fafb;padding:8px 12px;font-size:10.5px;text-align:left">${T('hty')}</th><th style="background:#f9fafb;padding:8px 12px;font-size:10.5px;text-align:left">${T('hdx')}</th></tr><tr><td style="padding:9px 12px;font-size:13px">${ST.hyp}</td><td style="padding:9px 12px;font-size:13px;color:#e65100;font-weight:600">${c.diagnostico_oculto}</td></tr></table><p style="margin-top:8px;font-size:12px;color:#555">${ev.hipotesis_valoracion?.comentario||''}</p></section>`:'';
+  const html=`<!DOCTYPE html><html lang="${LG}"><head><meta charset="UTF-8"><title>AnamnesIA — ${ST.stu} — ${c.paciente.nombre}</title>
+<style>body{font-family:'Helvetica Neue',Arial,sans-serif;color:#1a1a1a;max-width:900px;margin:0 auto;padding:28px 20px;font-size:14px;line-height:1.6;background:#f8f9fa}.hdr{background:linear-gradient(135deg,#0d2136,#1e4976);color:white;padding:28px 32px;border-radius:10px;margin-bottom:24px;position:relative;overflow:hidden}.hdr::before{content:'🩺';position:absolute;right:28px;top:50%;transform:translateY(-50%);font-size:65px;opacity:.1}.hdr h1{font-family:Georgia,serif;font-size:22px;margin-bottom:8px}.hdr p{font-size:12px;opacity:.85;margin:2px 0}.scw{display:flex;gap:11px;flex-wrap:wrap;margin-bottom:20px}.scb{background:white;border:1px solid #e5e7eb;border-radius:9px;padding:14px;text-align:center;min-width:95px;box-shadow:0 1px 3px rgba(0,0,0,.05)}.sbn{font-size:30px;font-weight:700;line-height:1;margin-bottom:3px}.sbl{font-size:9px;color:#9ca3af;text-transform:uppercase;letter-spacing:.07em}section{background:white;border:1px solid #e5e7eb;border-radius:9px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}h2{font-family:Georgia,serif;font-size:16px;border-bottom:2px solid #f3f4f6;padding-bottom:7px;margin:0 0 13px}.two{display:grid;grid-template-columns:1fr 1fr;gap:18px}.radc{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:20px}.rlg{display:grid;grid-template-columns:1fr 1fr;gap:7px}.rli{display:flex;align-items:center;gap:6px;font-size:12px}.rld{width:9px;height:9px;border-radius:50%}table.clt{width:100%;border-collapse:collapse;border:1px solid #e5e7eb}table.clt th{background:#f9fafb;padding:7px 11px;font-size:10px;text-align:left}table.clt td{padding:7px 11px;font-size:12px;border-top:1px solid #f0f0f0}ul{padding-left:17px}li{margin-bottom:4px;font-size:13px}.gl li::marker{color:#16a34a}.ol li::marker{color:#ea580c}footer{text-align:center;font-size:10.5px;color:#9ca3af;margin-top:28px;padding:14px;border-top:1px solid #e5e7eb}@media print{body{background:white;padding:0}section,.scb{box-shadow:none;break-inside:avoid}.two{grid-template-columns:1fr}}</style>
+</head><body>
+<div class="hdr"><h1>📋 ${LG==='es'?'Informe de Evaluación — Anamnesis Clínica':'Evaluation Report — Clinical History'}</h1><p>${LG==='es'?'Estudiante':'Student'}: <strong>${ST.stu}</strong></p><p>${LG==='es'?'Paciente':'Patient'}: <strong>${c.paciente.nombre}</strong> · ${c.paciente.edad} ${LG==='es'?'años':'years'} · ${c.paciente.sexo}</p><p>${LG==='es'?'Especialidad':'Specialty'}: ${ST.sp} · ${LG==='es'?'Dificultad':'Difficulty'}: ${ST.df} · ${LG==='es'?'Modo':'Mode'}: ${ST.md}</p><p>${LG==='es'?'Fecha':'Date'}: ${fecha} · ${getModel()} · ${T('sbt')}: ${ST.turns}</p></div>
+<div class="scw"><div class="scb"><div class="sbn" style="color:${hcls[ev.calificacion]||'#333'}">${ev.puntuacion_global.toFixed(1)}</div><div class="sbl">Global/10</div></div><div class="scb"><div class="sbn">${ev.puntuacion_checklist}</div><div class="sbl">Checklist/100</div></div><div class="scb"><div class="sbn" style="color:${hcls[ev.calificacion]||'#333'}">${ev.calificacion}</div><div class="sbl">${LG==='es'?'Calificación':'Grade'}</div></div>${cs.map(cm=>{const sc=cm.score,col=sc>=8?'#16a34a':sc>=6?'#1565c0':sc>=4?'#e65100':'#c62828';return`<div class="scb"><div class="sbn" style="color:${col}">${sc.toFixed(1)}</div><div class="sbl">${LG==='es'?cm.es:cm.en}</div></div>`}).join('')}</div>
+<section><h2>🎯 ${LG==='es'?'Perfil de competencias':'Competency profile'}</h2><div class="radc">${radarSVG}<div class="rlg">${cs.map(cm=>`<div class="rli"><div class="rld" style="background:${cm.c}"></div>${LG==='es'?cm.es:cm.en} <strong>${cm.score.toFixed(1)}</strong></div>`).join('')}</div></div></section>
+<section><h2>📝 ${LG==='es'?'Resumen':'Summary'}</h2><p style="font-family:Georgia,serif;font-size:14px;line-height:1.75;margin-bottom:14px">${ev.resumen}</p><div class="two"><div><strong style="font-size:11px;color:#16a34a;text-transform:uppercase;letter-spacing:.06em">✓ ${LG==='es'?'Fortalezas':'Strengths'}</strong><ul class="gl" style="margin-top:7px">${(ev.fortalezas||[]).map(f=>`<li>${f}</li>`).join('')}</ul></div><div><strong style="font-size:11px;color:#ea580c;text-transform:uppercase;letter-spacing:.06em">↗ ${LG==='es'?'Áreas de mejora':'Areas to improve'}</strong><ul class="ol" style="margin-top:7px">${(ev.areas_mejora||[]).map(a=>`<li>${a}</li>`).join('')}</ul></div></div></section>
+<section><h2>📐 ${LG==='es'?'Rúbrica':'Rubric'}</h2>${rubrH}</section>
+${hypoH}
+<section><h2>✅ ${T('t4')}</h2><table class="clt"><tr><th>${LG==='es'?'Área':'Area'}</th><th>${LG==='es'?'Estado':'Status'}</th><th>${LG==='es'?'Puntos':'Points'}</th><th>${LG==='es'?'Observación':'Observation'}</th></tr>${CL().map(it=>{const item=ev.checklist?.[it.id],col={completo:'#16a34a',parcial:'#e65100',no_explorado:'#c62828'}[item?.estado]||'#999',ico={completo:'✓',parcial:'~',no_explorado:'✗'}[item?.estado]||'?';return`<tr><td>${it.i} ${it.label}</td><td style="color:${col};font-weight:700;text-align:center">${ico}</td><td style="text-align:center">${item?.puntos||0}/${item?.max||it.w}</td><td style="font-style:italic;color:#777;font-size:11.5px">${item?.observacion||''}</td></tr>`}).join('')}</table></section>
+<section><h2>📚 ${LG==='es'?'Recomendaciones de aprendizaje':'Learning recommendations'}</h2><ul>${(ev.recomendaciones_aprendizaje||[]).map(r=>`<li>${r}</li>`).join('')}</ul></section>
+<section><h2>📜 ${LG==='es'?'Transcripción':'Transcript'}</h2>${convH}</section>
+<section style="background:#fffbeb;border-color:#fde68a"><h2 style="border-color:#fde68a">🔍 ${LG==='es'?'Historia clínica real':'Full patient history'}</h2><p><strong>${LG==='es'?'Diagnóstico':'Diagnosis'}:</strong> <span style="color:#c2410c;font-weight:700">${c.diagnostico_oculto}</span></p><table style="width:100%;margin-top:10px;border-collapse:collapse">${Object.entries(c.historia_completa).map(([k,v])=>`<tr><td style="padding:4px 10px 4px 0;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;white-space:nowrap;vertical-align:top">${k.replace(/_/g,' ')}</td><td style="padding:4px 0;font-size:12.5px">${v||''}</td></tr>`).join('')}</table></section>
+<footer>AnamnesIA · ${fecha} · ${LG==='es'?'Uso formativo exclusivamente':'For educational use only'}</footer>
+</body></html>`;
+  const blob=new Blob([html],{type:'text/html;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`informe_anamnesia_${ST.stu.replace(/\s+/g,'_')}_${Date.now()}.html`;a.click();
+}
+
+function newCase(){
+  clearInterval(ST.ti);window.speechSynthesis?.cancel();
+  ST.his=[];ST.cas=null;ST.ev=null;ST.turns=0;ST.hyp='';
+  document.getElementById('msgs').innerHTML='';document.getElementById('hypoIn').value='';
+  document.getElementById('navpill').style.display='flex';
+  navTo('home');
+}
+initDB().catch(()=>{});
+</script></body></html>
