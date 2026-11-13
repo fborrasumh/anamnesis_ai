@@ -20,6 +20,7 @@ I18N.en = {
   's.stt': 'Dictation', 's.stt.s': 'speak instead of typing', 's.tts': 'Patient’s voice', 's.tts.s': 'the patient answers out loud',
   's.voz.help': 'Done by the browser itself (Web Speech API): the audio never leaves your device. Works best in Chrome and Edge.',
   's.voz.no': 'This browser does not support dictation. The interview works just the same by typing.',
+  's.voz.ios': 'On iPhone and iPad the browser only speaks after you have tapped the screen at least once, and dictation is not available. If the patient is silent, use the 🔊 button on the reply.',
   's.generar': 'Generate patient and start',
   /* entrevista */
   's.paso2': 'Step 2 of 3', 's.entrevista': 'The interview',

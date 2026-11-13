@@ -18,6 +18,7 @@ I18N.pt = {
   's.stt': 'Ditado', 's.stt.s': 'fala em vez de escrever', 's.tts': 'Voz do paciente', 's.tts.s': 'o paciente responde em voz alta',
   's.voz.help': 'É feito pelo próprio navegador (Web Speech API): o áudio não sai do seu dispositivo. Funciona melhor no Chrome e no Edge.',
   's.voz.no': 'Este navegador não suporta ditado. A entrevista funciona na mesma por escrito.',
+  's.voz.ios': 'No iPhone e no iPad, o navegador só fala depois de tocar no ecrã pelo menos uma vez, e o ditado não está disponível. Se o paciente não se ouvir, use o botão 🔊 da resposta.',
   's.generar': 'Gerar paciente e começar',
   's.paso2': 'Passo 2 de 3', 's.entrevista': 'A entrevista',
   's.entrevista.lede': 'Pergunte como faria numa consulta. O paciente só responde ao que lhe perguntar.',

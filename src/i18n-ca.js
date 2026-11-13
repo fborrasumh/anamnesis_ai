@@ -18,6 +18,7 @@ I18N.ca = {
   's.stt': 'Dictat', 's.stt.s': 'parles en comptes d’escriure', 's.tts': 'Veu del pacient', 's.tts.s': 'el pacient respon en veu alta',
   's.voz.help': 'Ho fa el navegador mateix (Web Speech API): l’àudio no surt del teu dispositiu. Funciona millor a Chrome i Edge.',
   's.voz.no': 'Aquest navegador no admet dictat. L’entrevista funciona igual escrivint.',
+  's.voz.ios': 'A l’iPhone i a l’iPad, el navegador només parla després que toquis la pantalla almenys una vegada, i el dictat no està disponible. Si el pacient no sona, fes servir el botó 🔊 de la seva resposta.',
   's.generar': 'Generar pacient i començar',
   's.paso2': 'Pas 2 de 3', 's.entrevista': 'L’entrevista',
   's.entrevista.lede': 'Pregunta com ho faries a la consulta. El pacient només contesta allò que li preguntes.',

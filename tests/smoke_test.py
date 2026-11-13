@@ -191,6 +191,32 @@ async def main():
                   not await p.evaluate("$('mGen').classList.contains('on')") and 'clave' in (await p.inner_text('#estadoGen')).lower(),
                   await p.inner_text('#estadoGen'))
 
+    # ── 5. voz del paciente (iOS: hace falta desbloquear con un gesto) ──
+    print('\nVoz del paciente')
+    VOZ = """
+window.__dichos = [];
+const fake = {speaking:false, pending:false, cancel(){fake.speaking=false},
+  getVoices:()=>[{lang:'es-ES',localService:true,name:'test'}],
+  speak(u){ window.__dichos.push({texto:u.text, vol:u.volume}); fake.speaking=true; setTimeout(()=>{fake.speaking=false; u.onend&&u.onend()},10); }};
+Object.defineProperty(window,'speechSynthesis',{value:fake,configurable:true});
+Object.defineProperty(window,'SpeechSynthesisUtterance',{value:function(t){this.text=t;this.volume=1;},configurable:true});
+"""
+    async with Harness(INDEX, responde, init_scripts=[VOZ]) as h:
+        p = h.page
+        await pon_clave(h); await p.reload(); await p.wait_for_timeout(400)
+        await p.click('#btnStart'); await p.wait_for_timeout(200)
+        d = await p.evaluate("window.__dichos")
+        comprueba('el primer gesto desbloquea la voz (locución vacía y muda)', bool(d) and d[0]['vol'] == 0, str(d[:1]))
+        await p.check('#tTTS')
+        await p.click('#btnGenera'); await p.wait_for_timeout(300)
+        await acepta_envio(h); await h.esp("step===2", n=40)
+        await p.fill('#cin', '¿Desde cuándo?'); await p.click('#btnSend'); await p.wait_for_timeout(1500)
+        dichas = await p.evaluate("window.__dichos.filter(x=>x.vol!==0).map(x=>x.texto)")
+        comprueba('el paciente habla solo tras responder', len(dichas) >= 1, str(dichas))
+        await p.click('.an-tts'); await p.wait_for_timeout(400)
+        comprueba('el botón 🔊 lee la respuesta', await p.evaluate("window.__dichos.filter(x=>x.vol!==0).length") >= 2)
+        comprueba('sin errores de JavaScript', not h.errors, str(h.errors))
+
     # ── 4. móvil ──
     print('\nMóvil (390×844)')
     async with Harness(INDEX, responde, viewport=(390, 844)) as h:

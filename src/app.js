@@ -479,16 +479,30 @@ function alternaMicro() {
   reconocedor.start();
 }
 $('btnMic').onclick = alternaMicro;
+/* iOS (Safari y Chrome, que allí es el mismo motor) solo deja hablar al navegador si la PRIMERA locución
+   sale de un gesto de la persona. La respuesta del paciente llega tras esperar a la IA, así que sin esto
+   el sistema la descarta en silencio. Se «desbloquea» con una locución vacía en el primer toque. */
+let vozDesbloqueada = false;
+function desbloqueaVoz() {
+  if (vozDesbloqueada || !('speechSynthesis' in window)) return;
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); vozDesbloqueada = true; } catch (e) {}
+}
+document.addEventListener('pointerdown', desbloqueaVoz, {once: true});
+document.addEventListener('keydown', desbloqueaVoz, {once: true});
+/* la lista de voces llega de forma asíncrona: la primera vez puede estar vacía */
+if ('speechSynthesis' in window) { try { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); } catch (e) {} }
+
 function lee(texto, boton) {
   if (!('speechSynthesis' in window)) return;
-  if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); if (boton) boton.textContent = '🔊'; return; }
+  if (window.speechSynthesis.speaking || window.speechSynthesis.pending) { window.speechSynthesis.cancel(); if (boton) { boton.textContent = '🔊'; return; } }
   const u = new SpeechSynthesisUtterance(texto);
   u.lang = locale(); u.rate = 1;
   const base = locale().split('-')[0], voces = window.speechSynthesis.getVoices();
   const v = voces.find(x => x.lang.startsWith(base) && x.localService) || voces.find(x => x.lang.startsWith(base));
   if (v) u.voice = v;
   if (boton) { boton.textContent = '⏹'; u.onend = u.onerror = () => { boton.textContent = '🔊'; }; }
-  window.speechSynthesis.speak(u);
+  /* iOS necesita un respiro tras cancel() o se queda mudo */
+  setTimeout(() => { try { window.speechSynthesis.speak(u); } catch (e) {} }, 60);
 }
 
 /* ── exportaciones ───────────────────────────────────────────────────────────────────── */

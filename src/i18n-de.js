@@ -18,6 +18,7 @@ I18N.de = {
   's.stt': 'Diktat', 's.stt.s': 'sprechen statt tippen', 's.tts': 'Patientenstimme', 's.tts.s': 'der Patient antwortet laut',
   's.voz.help': 'Übernimmt der Browser selbst (Web Speech API): das Audio verlässt Ihr Gerät nicht. Funktioniert am besten in Chrome und Edge.',
   's.voz.no': 'Dieser Browser unterstützt kein Diktat. Das Gespräch funktioniert schriftlich genauso.',
+  's.voz.ios': 'Auf iPhone und iPad spricht der Browser erst, nachdem Sie den Bildschirm mindestens einmal berührt haben, und Diktat ist nicht verfügbar. Bleibt der Patient stumm, nutzen Sie die Schaltfläche 🔊 bei seiner Antwort.',
   's.generar': 'Patient erzeugen und starten',
   's.paso2': 'Schritt 2 von 3', 's.entrevista': 'Das Gespräch',
   's.entrevista.lede': 'Fragen Sie wie in der Sprechstunde. Der Patient antwortet nur auf das, was Sie ihn fragen.',

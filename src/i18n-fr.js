@@ -18,6 +18,7 @@ I18N.fr = {
   's.stt': 'Dictée', 's.stt.s': 'parlez au lieu d’écrire', 's.tts': 'Voix du patient', 's.tts.s': 'le patient répond à voix haute',
   's.voz.help': 'Assuré par le navigateur lui-même (Web Speech API) : l’audio ne quitte pas votre appareil. Fonctionne mieux sur Chrome et Edge.',
   's.voz.no': 'Ce navigateur ne prend pas en charge la dictée. L’entretien fonctionne tout aussi bien à l’écrit.',
+  's.voz.ios': 'Sur iPhone et iPad, le navigateur ne parle qu’après que vous avez touché l’écran au moins une fois, et la dictée n’est pas disponible. Si le patient reste muet, utilisez le bouton 🔊 de sa réponse.',
   's.generar': 'Générer le patient et commencer',
   's.paso2': 'Étape 2 sur 3', 's.entrevista': 'L’entretien',
   's.entrevista.lede': 'Posez vos questions comme en consultation. Le patient ne répond qu’à ce que vous lui demandez.',

@@ -614,6 +614,7 @@ table{border-collapse:collapse;width:100%;font-size:13.8px}th{background:var(--p
     <label class="fa-chk"><input type="checkbox" id="tSTT"> <span><b data-i18n="s.stt">Dictado</b> — <span data-i18n="s.stt.s">hablas en vez de escribir</span></span></label>
     <label class="fa-chk" style="margin-top:8px"><input type="checkbox" id="tTTS"> <span><b data-i18n="s.tts">Voz del paciente</b> — <span data-i18n="s.tts.s">el paciente responde en voz alta</span></span></label>
     <p class="help" id="vozInfo" data-i18n="s.voz.help">Lo hace el propio navegador (Web Speech API): el audio no sale de tu dispositivo. Funciona mejor en Chrome y Edge.</p>
+    <p class="help" data-i18n="s.voz.ios">En iPhone y iPad, el navegador solo habla después de que toques la pantalla al menos una vez, y el dictado no está disponible. Si el paciente no suena, usa el botón 🔊 de su respuesta.</p>
     <p class="aviso" id="vozNo" hidden data-i18n="s.voz.no">Este navegador no admite dictado. La entrevista funciona igual escribiendo.</p>
   </div>
   <div class="card"><div class="actions" style="margin-top:0"><button class="btn btn-primary" id="btnGenera" type="button"><svg class="i"><use href="#i-sparkles"/></svg><span data-i18n="s.generar">Generar paciente e iniciar</span></button></div><p class="help" id="estadoGen"></p></div>
@@ -1531,6 +1532,7 @@ I18N.en = {
   's.stt': 'Dictation', 's.stt.s': 'speak instead of typing', 's.tts': 'Patient’s voice', 's.tts.s': 'the patient answers out loud',
   's.voz.help': 'Done by the browser itself (Web Speech API): the audio never leaves your device. Works best in Chrome and Edge.',
   's.voz.no': 'This browser does not support dictation. The interview works just the same by typing.',
+  's.voz.ios': 'On iPhone and iPad the browser only speaks after you have tapped the screen at least once, and dictation is not available. If the patient is silent, use the 🔊 button on the reply.',
   's.generar': 'Generate patient and start',
   /* entrevista */
   's.paso2': 'Step 2 of 3', 's.entrevista': 'The interview',
@@ -1766,6 +1768,7 @@ I18N.ca = {
   's.stt': 'Dictat', 's.stt.s': 'parles en comptes d’escriure', 's.tts': 'Veu del pacient', 's.tts.s': 'el pacient respon en veu alta',
   's.voz.help': 'Ho fa el navegador mateix (Web Speech API): l’àudio no surt del teu dispositiu. Funciona millor a Chrome i Edge.',
   's.voz.no': 'Aquest navegador no admet dictat. L’entrevista funciona igual escrivint.',
+  's.voz.ios': 'A l’iPhone i a l’iPad, el navegador només parla després que toquis la pantalla almenys una vegada, i el dictat no està disponible. Si el pacient no sona, fes servir el botó 🔊 de la seva resposta.',
   's.generar': 'Generar pacient i començar',
   's.paso2': 'Pas 2 de 3', 's.entrevista': 'L’entrevista',
   's.entrevista.lede': 'Pregunta com ho faries a la consulta. El pacient només contesta allò que li preguntes.',
@@ -1990,6 +1993,7 @@ I18N.pt = {
   's.stt': 'Ditado', 's.stt.s': 'fala em vez de escrever', 's.tts': 'Voz do paciente', 's.tts.s': 'o paciente responde em voz alta',
   's.voz.help': 'É feito pelo próprio navegador (Web Speech API): o áudio não sai do seu dispositivo. Funciona melhor no Chrome e no Edge.',
   's.voz.no': 'Este navegador não suporta ditado. A entrevista funciona na mesma por escrito.',
+  's.voz.ios': 'No iPhone e no iPad, o navegador só fala depois de tocar no ecrã pelo menos uma vez, e o ditado não está disponível. Se o paciente não se ouvir, use o botão 🔊 da resposta.',
   's.generar': 'Gerar paciente e começar',
   's.paso2': 'Passo 2 de 3', 's.entrevista': 'A entrevista',
   's.entrevista.lede': 'Pergunte como faria numa consulta. O paciente só responde ao que lhe perguntar.',
@@ -2214,6 +2218,7 @@ I18N.fr = {
   's.stt': 'Dictée', 's.stt.s': 'parlez au lieu d’écrire', 's.tts': 'Voix du patient', 's.tts.s': 'le patient répond à voix haute',
   's.voz.help': 'Assuré par le navigateur lui-même (Web Speech API) : l’audio ne quitte pas votre appareil. Fonctionne mieux sur Chrome et Edge.',
   's.voz.no': 'Ce navigateur ne prend pas en charge la dictée. L’entretien fonctionne tout aussi bien à l’écrit.',
+  's.voz.ios': 'Sur iPhone et iPad, le navigateur ne parle qu’après que vous avez touché l’écran au moins une fois, et la dictée n’est pas disponible. Si le patient reste muet, utilisez le bouton 🔊 de sa réponse.',
   's.generar': 'Générer le patient et commencer',
   's.paso2': 'Étape 2 sur 3', 's.entrevista': 'L’entretien',
   's.entrevista.lede': 'Posez vos questions comme en consultation. Le patient ne répond qu’à ce que vous lui demandez.',
@@ -2438,6 +2443,7 @@ I18N.de = {
   's.stt': 'Diktat', 's.stt.s': 'sprechen statt tippen', 's.tts': 'Patientenstimme', 's.tts.s': 'der Patient antwortet laut',
   's.voz.help': 'Übernimmt der Browser selbst (Web Speech API): das Audio verlässt Ihr Gerät nicht. Funktioniert am besten in Chrome und Edge.',
   's.voz.no': 'Dieser Browser unterstützt kein Diktat. Das Gespräch funktioniert schriftlich genauso.',
+  's.voz.ios': 'Auf iPhone und iPad spricht der Browser erst, nachdem Sie den Bildschirm mindestens einmal berührt haben, und Diktat ist nicht verfügbar. Bleibt der Patient stumm, nutzen Sie die Schaltfläche 🔊 bei seiner Antwort.',
   's.generar': 'Patient erzeugen und starten',
   's.paso2': 'Schritt 2 von 3', 's.entrevista': 'Das Gespräch',
   's.entrevista.lede': 'Fragen Sie wie in der Sprechstunde. Der Patient antwortet nur auf das, was Sie ihn fragen.',
@@ -3372,16 +3378,30 @@ function alternaMicro() {
   reconocedor.start();
 }
 $('btnMic').onclick = alternaMicro;
+/* iOS (Safari y Chrome, que allí es el mismo motor) solo deja hablar al navegador si la PRIMERA locución
+   sale de un gesto de la persona. La respuesta del paciente llega tras esperar a la IA, así que sin esto
+   el sistema la descarta en silencio. Se «desbloquea» con una locución vacía en el primer toque. */
+let vozDesbloqueada = false;
+function desbloqueaVoz() {
+  if (vozDesbloqueada || !('speechSynthesis' in window)) return;
+  try { const u = new SpeechSynthesisUtterance(' '); u.volume = 0; window.speechSynthesis.speak(u); vozDesbloqueada = true; } catch (e) {}
+}
+document.addEventListener('pointerdown', desbloqueaVoz, {once: true});
+document.addEventListener('keydown', desbloqueaVoz, {once: true});
+/* la lista de voces llega de forma asíncrona: la primera vez puede estar vacía */
+if ('speechSynthesis' in window) { try { window.speechSynthesis.getVoices(); window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices(); } catch (e) {} }
+
 function lee(texto, boton) {
   if (!('speechSynthesis' in window)) return;
-  if (window.speechSynthesis.speaking) { window.speechSynthesis.cancel(); if (boton) boton.textContent = '🔊'; return; }
+  if (window.speechSynthesis.speaking || window.speechSynthesis.pending) { window.speechSynthesis.cancel(); if (boton) { boton.textContent = '🔊'; return; } }
   const u = new SpeechSynthesisUtterance(texto);
   u.lang = locale(); u.rate = 1;
   const base = locale().split('-')[0], voces = window.speechSynthesis.getVoices();
   const v = voces.find(x => x.lang.startsWith(base) && x.localService) || voces.find(x => x.lang.startsWith(base));
   if (v) u.voice = v;
   if (boton) { boton.textContent = '⏹'; u.onend = u.onerror = () => { boton.textContent = '🔊'; }; }
-  window.speechSynthesis.speak(u);
+  /* iOS necesita un respiro tras cancel() o se queda mudo */
+  setTimeout(() => { try { window.speechSynthesis.speak(u); } catch (e) {} }, 60);
 }
 
 /* ── exportaciones ───────────────────────────────────────────────────────────────────── */
