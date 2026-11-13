@@ -1,0 +1,89 @@
+{
+  "slug": "anamnesis_ai",
+  "name": "AnamnesIA",
+  "tagline": "Entrenador de historia clínica con paciente simulado",
+  "description": "Entrena la entrevista clínica con un paciente simulado por IA: checklist verificado por código, rúbrica, evaluación por competencias y progreso.",
+  "eyebrow": "Entrenamiento de la entrevista clínica con paciente simulado · Universidad Miguel Hernández de Elche",
+  "h1": "Practica la *anamnesis* con un paciente que no te lo pone fácil",
+  "lede": "La IA encarna a un paciente con una historia clínica oculta. Tú conduces la entrevista; el código comprueba qué apartados has explorado de verdad y al terminar contrastas tu hipótesis con la historia real.",
+  "logo_icon": "pulse",
+  "ia": true,
+  "lang": "es",
+  "langs": [
+    "es",
+    "ca",
+    "en",
+    "pt",
+    "fr",
+    "de"
+  ],
+  "modules": [
+    "00-utils",
+    "10-persist",
+    "20-providers",
+    "30-verify",
+    "60-nav",
+    "65-i18n"
+  ],
+  "app_js": [
+    "i18n-en.js",
+    "i18n-ca.js",
+    "i18n-pt.js",
+    "i18n-fr.js",
+    "i18n-de.js",
+    "datos.js",
+    "nucleo.js",
+    "app.js"
+  ],
+  "i18n": {
+    "ca": {
+      "title": "AnamnesIA · Entrenador d'història clínica",
+      "eyebrow": "Entrenament de l'entrevista clínica amb pacient simulat · Universitat Miguel Hernández d'Elx",
+      "h1": "Practica l'*anamnesi* amb un pacient que no t'ho posa fàcil",
+      "lede": "La IA encarna un pacient amb una història clínica oculta. Tu condueixes l'entrevista; el codi comprova quins apartats has explorat de debò i en acabar contrastes la teva hipòtesi amb la història real."
+    },
+    "en": {
+      "title": "AnamnesIA · Clinical history trainer",
+      "eyebrow": "Clinical interview training with a simulated patient · Miguel Hernández University of Elche",
+      "h1": "Practise the *clinical interview* with a patient who does not make it easy",
+      "lede": "The AI plays a patient with a hidden clinical history. You lead the interview; the code checks which sections you have really explored and at the end you compare your hypothesis with the real history."
+    },
+    "pt": {
+      "title": "AnamnesIA · Treinador de anamnese clínica",
+      "eyebrow": "Treino da entrevista clínica com paciente simulado · Universidade Miguel Hernández de Elche",
+      "h1": "Pratique a *anamnese* com um paciente que não facilita",
+      "lede": "A IA encarna um paciente com uma história clínica oculta. Você conduz a entrevista; o código verifica que secções explorou mesmo e no final compara a sua hipótese com a história real."
+    },
+    "fr": {
+      "title": "AnamnesIA · Entraîneur d'histoire clinique",
+      "eyebrow": "Entraînement à l'entretien clinique avec patient simulé · Université Miguel Hernández d'Elche",
+      "h1": "Entraînez-vous à l'*anamnèse* avec un patient qui ne vous facilite pas la tâche",
+      "lede": "L'IA incarne un patient dont l'histoire clinique est cachée. Vous menez l'entretien ; le code vérifie les rubriques que vous avez réellement explorées et, à la fin, vous confrontez votre hypothèse à l'histoire réelle."
+    },
+    "de": {
+      "title": "AnamnesIA · Trainer für die klinische Anamnese",
+      "eyebrow": "Training des klinischen Gesprächs mit simulierten Patienten · Universität Miguel Hernández de Elche",
+      "h1": "Üben Sie die *Anamnese* mit einem Patienten, der es Ihnen nicht leicht macht",
+      "lede": "Die KI verkörpert einen Patienten mit verborgener Krankengeschichte. Sie führen das Gespräch; der Code prüft, welche Bereiche Sie wirklich erhoben haben, und am Ende vergleichen Sie Ihre Hypothese mit der echten Krankengeschichte."
+    }
+  },
+  "authors": [
+    {
+      "name": "Fernando Borrás Rocher",
+      "orcid": "0000-0002-5519-4573",
+      "affiliation": "Universidad Miguel Hernández de Elche"
+    }
+  ],
+  "catalog": {
+    "cat": "doc",
+    "icon": "ti-bulb",
+    "sub_es": "Entrevista clínica con paciente simulado",
+    "desc_es": "La IA encarna a un paciente con historia clínica oculta. El código comprueba la cobertura de la anamnesis y la evaluación contrasta la hipótesis con la historia real.",
+    "sub_en": "Clinical interview with a simulated patient",
+    "desc_en": "The AI plays a patient with a hidden clinical history. The code checks anamnesis coverage and the assessment compares the hypothesis with the real history.",
+    "tit_es": "Medicina y ciencias de la salud",
+    "comp_es": "Entrevista clínica, razonamiento diagnóstico, comunicación con el paciente",
+    "tit_en": "Medicine and health sciences",
+    "comp_en": "Clinical interviewing, diagnostic reasoning, patient communication"
+  }
+}
