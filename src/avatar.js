@@ -33,6 +33,7 @@ async function avatarMuestra() {
     }
     await cabeza.showAvatar({url: av.url, body: av.body, avatarMood: 'neutral'},
       ev => { if (ev.lengthComputable) estado.textContent = t('Cargando avatar…') + ' ' + Math.round(100 * ev.loaded / ev.total) + '%'; });
+    cabeza.setBaselineValue('mouthClose', 0.2);   // en reposo los labios de estos modelos quedan entreabiertos y asoman los dientes
     avatarCargado = av.url; estado.textContent = '';
   })().catch(e => {
     console.error(e); avatarCargado = '';
@@ -64,6 +65,9 @@ function visemasPalabra(w) {
 }
 
 const MS_LETRA = 68;   // ritmo estimado de la voz del navegador a velocidad 1
+/* las vocales abren la mandíbula (si no, los dientes quedan juntos y parece que rechina); P/B/M y F cierran labios; el resto, suave */
+const NIVEL = {aa: 0.8, E: 0.7, I: 0.7, O: 0.8, U: 0.75, PP: 0.9, FF: 0.9};
+const MANDIBULA = {aa: 0.3, E: 0.1, I: 0.08, O: 0.22, U: 0.12};
 function avatarVisemas(texto, inicio) {   // encola los visemas de «texto» a partir de «inicio» ms; devuelve cuándo acaba
   let t0 = inicio;
   for (const w of texto.split(/\s+/).filter(Boolean)) {
@@ -72,7 +76,7 @@ function avatarVisemas(texto, inicio) {   // encola los visemas de «texto» a p
     vis.forEach((x, j) => {
       const t = t0 + j * d;
       cabeza.animQueue.push({template: {name: 'viseme'}, ts: [t - Math.min(60, 2 * d / 3), t + Math.min(25, d / 2), t + d + Math.min(60, d / 2)],
-        vs: {['viseme_' + x]: [null, (x === 'PP' || x === 'FF') ? 0.9 : 0.6, 0]}});
+        vs: {['viseme_' + x]: [null, NIVEL[x] ?? 0.4, 0], ...(MANDIBULA[x] ? {jawOpen: [null, MANDIBULA[x], 0]} : {})}});
     });
     t0 += dur + (/[.,;:!?]$/.test(w) ? 250 : 40);
   }
