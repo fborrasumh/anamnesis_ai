@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0F2237">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; media-src blob: data:; connect-src https://api.openai.com https://generativelanguage.googleapis.com https://api.anthropic.com; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' https://cdn.jsdelivr.net 'wasm-unsafe-eval'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; media-src blob: data:; connect-src https://api.openai.com https://generativelanguage.googleapis.com https://api.anthropic.com 'self' blob:; base-uri 'none'; form-action 'none'">
 <meta name="author" content="Fernando Borrás Rocher">
 <meta name="description" content="Entrena la entrevista clínica con un paciente simulado por IA: checklist verificado por código, rúbrica, evaluación por competencias y progreso.">
 <title>AnamnesIA · Entrenador de historia clínica con paciente simulado</title><link rel="preconnect" href="https://fonts.googleapis.com">
@@ -498,6 +498,7 @@ table{border-collapse:collapse;width:100%;font-size:13.8px}th{background:var(--p
 .an-sesiones .an-emoji{font-size:19px;flex:none}
 .an-sesiones b{font:700 14.5px var(--texto)}.an-sesiones small{display:block;color:var(--gris);font-size:12.4px}
 .an-sesiones .an-pts{margin-left:auto;font:800 17px var(--display);flex:none}
+.an-avatar{margin-bottom:12px}.an-avatar-lienzo{height:280px;border-radius:14px;background:linear-gradient(#EEF2F6,#DCE3EA);overflow:hidden}.an-avatar .help{margin:4px 0 0}
 </style></head>
 <body>
 <svg style="display:none" aria-hidden="true">
@@ -556,6 +557,7 @@ table{border-collapse:collapse;width:100%;font-size:13.8px}th{background:var(--p
 <symbol id="i-sound" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M17 8a5 5 0 0 1 0 8"/></symbol>
 <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-3-6-7-2z"/></symbol>
 </svg>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"}}</script>
 <div class="topbar">
   <div class="tb-in">
     <button class="logo" id="goHome" type="button" aria-label="Inicio" data-i18n-attr="aria-label:Inicio"><span class="anv"><svg class="i"><use href="#i-pulse"/></svg></span><span>Anamnes<em>IA</em></span></button>
@@ -613,6 +615,7 @@ table{border-collapse:collapse;width:100%;font-size:13.8px}th{background:var(--p
     <h3 data-i18n="s.voz">Voz</h3>
     <label class="fa-chk"><input type="checkbox" id="tSTT"> <span><b data-i18n="s.stt">Dictado</b> — <span data-i18n="s.stt.s">hablas en vez de escribir</span></span></label>
     <label class="fa-chk" style="margin-top:8px"><input type="checkbox" id="tTTS"> <span><b data-i18n="s.tts">Voz del paciente</b> — <span data-i18n="s.tts.s">el paciente responde en voz alta</span></span></label>
+    <label class="fa-chk" style="margin-top:8px"><input type="checkbox" id="tAVA"> <span><b>Avatar 3D (prototipo)</b> — <span>el paciente aparece en pantalla y mueve los labios cuando habla en voz alta</span></span></label>
     <p class="help" id="vozInfo" data-i18n="s.voz.help">Lo hace el propio navegador (Web Speech API): el audio no sale de tu dispositivo. Funciona mejor en Chrome y Edge.</p>
     <p class="help" data-i18n="s.voz.ios">En iPhone y iPad, el navegador solo habla después de que toques la pantalla al menos una vez, y el dictado no está disponible. Si el paciente no suena, usa el botón 🔊 de su respuesta.</p>
     <p class="aviso" id="vozNo" hidden data-i18n="s.voz.no">Este navegador no admite dictado. La entrevista funciona igual escribiendo.</p>
@@ -626,6 +629,7 @@ table{border-collapse:collapse;width:100%;font-size:13.8px}th{background:var(--p
   <div class="an-sala">
     <div class="card an-chatcard">
       <div class="an-paciente" id="pacienteCab"></div>
+      <div class="an-avatar" id="avatarZona" hidden><div class="an-avatar-lienzo" id="avatarLienzo"></div><p class="help" id="avatarEstado" role="status"></p></div>
       <div class="an-msgs" id="msgs" role="log" aria-live="polite"></div>
       <div class="an-entrada">
         <button class="btn btn-ghost btn-sm an-mic" id="btnMic" type="button" aria-label="Dictar" data-i18n-attr="aria-label:s.dictar" hidden><svg class="i"><use href="#i-mic"/></svg></button>
@@ -2897,6 +2901,99 @@ function resumenProgreso(sesiones) {
 
 if (typeof module !== 'undefined' && module.exports) module.exports = {detectaCobertura, pctCobertura, revisaEval, calificacionDe, anotacionesFuera, resumenProgreso};
 
+/* ── avatar 3D del paciente (PROTOTIPO) ────────────────────────────────────────────────────
+   Dibuja en el navegador un avatar 3D (TalkingHead, MIT, sobre three.js) y le mueve los labios
+   mientras habla la voz del navegador. No usa ningún servicio de pago ni manda audio fuera.
+   La voz del navegador no expone el audio, así que los labios se guían por palabras:
+   - si la voz avisa de cada palabra (evento «boundary»), se anima palabra a palabra;
+   - si no avisa (pasa con algunas voces de Chrome y Safari), se anima el texto entero con un ritmo estimado.
+   Avatar: «mpfb.glb» del repositorio de TalkingHead (MPFB/MakeHuman, CC0), comprimido a ~3 MB. */
+const AVATAR_LIB = 'https://cdn.jsdelivr.net/npm/@met4citizen/talkinghead@1.8.2/modules/talkinghead.mjs';
+const AVATAR_GLB = 'avatar/paciente.glb';
+let cabeza = null, cargandoCabeza = null;
+
+async function avatarMuestra() {
+  const zona = $('avatarZona');
+  zona.hidden = !S.ava;
+  if (!S.ava || cabeza || cargandoCabeza) return;
+  const lienzo = $('avatarLienzo'), estado = $('avatarEstado');
+  estado.textContent = t('Cargando avatar…');
+  cargandoCabeza = (async () => {
+    const {TalkingHead} = await import(AVATAR_LIB);
+    cabeza = new TalkingHead(lienzo, {lipsyncModules: [], cameraView: 'head', avatarMood: 'neutral', modelFPS: 30});
+    await cabeza.showAvatar({url: AVATAR_GLB, body: 'F', avatarMood: 'neutral'},
+      ev => { if (ev.lengthComputable) estado.textContent = t('Cargando avatar…') + ' ' + Math.round(100 * ev.loaded / ev.total) + '%'; });
+    estado.textContent = '';
+  })().catch(e => {
+    console.error(e); cabeza = null;
+    estado.textContent = t('No se pudo cargar el avatar. La entrevista sigue igual sin él.');
+  }).finally(() => { cargandoCabeza = null; });
+}
+
+/* letras → visemas (Oculus) con las reglas básicas de la ortografía española; sirve de aproximación para los demás idiomas */
+function visemasPalabra(w) {
+  w = w.toLowerCase().replace(/[^a-záéíóúüñç]/g, '');
+  const v = [], voc = {a: 'aa', á: 'aa', e: 'E', é: 'E', i: 'I', í: 'I', y: 'I', o: 'O', ó: 'O', u: 'U', ú: 'U', ü: 'U'};
+  for (let i = 0; i < w.length; i++) {
+    const c = w[i], s = w[i + 1] || '';
+    if (voc[c]) v.push(voc[c]);
+    else if (c === 'h') continue;
+    else if (c === 'c' && s === 'h') { v.push('CH'); i++; }
+    else if ((c === 'q' || c === 'g') && s === 'u' && 'eéií'.includes(w[i + 2] || '')) { v.push('kk'); i++; }
+    else if (c === 'l' && s === 'l') { v.push('CH'); i++; }
+    else if (c === 'r' && s === 'r') { v.push('RR'); i++; }
+    else if ('bpmv'.includes(c)) v.push('PP');
+    else if (c === 'f') v.push('FF');
+    else if ('dt'.includes(c)) v.push('DD');
+    else if ('szç'.includes(c) || (c === 'c' && 'eéií'.includes(s))) v.push('SS');
+    else if ('cgkqjx'.includes(c)) v.push('kk');
+    else if ('nlñ'.includes(c)) v.push('nn');
+    else if (c === 'r') v.push('RR');
+  }
+  return v;
+}
+
+const MS_LETRA = 68;   // ritmo estimado de la voz del navegador a velocidad 1
+function avatarVisemas(texto, inicio) {   // encola los visemas de «texto» a partir de «inicio» ms; devuelve cuándo acaba
+  let t0 = inicio;
+  for (const w of texto.split(/\s+/).filter(Boolean)) {
+    const vis = visemasPalabra(w), dur = Math.max(120, w.length * MS_LETRA);
+    const d = vis.length ? dur / vis.length : 0;
+    vis.forEach((x, j) => {
+      const t = t0 + j * d;
+      cabeza.animQueue.push({template: {name: 'viseme'}, ts: [t - Math.min(60, 2 * d / 3), t + Math.min(25, d / 2), t + d + Math.min(60, d / 2)],
+        vs: {['viseme_' + x]: [null, (x === 'PP' || x === 'FF') ? 0.9 : 0.6, 0]}});
+    });
+    t0 += dur + (/[.,;:!?]$/.test(w) ? 250 : 40);
+  }
+  return t0;
+}
+function avatarCalla() {
+  if (!cabeza) return;
+  cabeza.animQueue = cabeza.animQueue.filter(x => x.template?.name !== 'viseme');
+  cabeza.resetLips(); cabeza.isSpeaking = false; cabeza.stateName = 'idle';
+}
+
+/* se engancha a cada locución del paciente (la llama lee() antes de hablar) */
+function avatarHabla(u, texto) {
+  if (!cabeza) return;
+  let porPalabras = false, estimado = false, respaldo = null;
+  u.addEventListener('start', () => {
+    cabeza.isSpeaking = true; cabeza.stateName = 'speaking';
+    cabeza.lookAtCamera(500); cabeza.speakWithHands();
+    respaldo = setTimeout(() => { if (!porPalabras) { estimado = true; avatarVisemas(texto, cabeza.animClock); } }, 300);
+  });
+  u.addEventListener('boundary', ev => {
+    if (ev.name && ev.name !== 'word') return;
+    porPalabras = true;
+    if (estimado) return;   // el respaldo ya animó todo el texto
+    const w = texto.slice(ev.charIndex, ev.charLength ? ev.charIndex + ev.charLength : undefined).split(/\s/)[0];
+    avatarVisemas(w, cabeza.animClock);
+  });
+  const fin = () => { clearTimeout(respaldo); avatarCalla(); };
+  u.addEventListener('end', fin); u.addEventListener('error', fin);
+}
+
 /* ══ AnamnesIA · lógica de la app.
       La IA encarna al paciente y redacta la evaluación; el código comprueba la cobertura de la anamnesis,
       rehace las sumas y los topes de la evaluación y avisa de lo que no cuadraba (nucleo.js).
@@ -2921,7 +3018,7 @@ const GLOS = [
 ];
 
 let S = {
-  stu: '', sp: 'medicina general', df: 'intermedio', md: 'practica', stt: false, tts: false,
+  stu: '', sp: 'medicina general', df: 'intermedio', md: 'practica', stt: false, tts: false, ava: false,
   caso: null, his: [], turns: 0, t0: null, elapsed: 0, cls: {}, hyp: '', ev: null, avisos: [],
   esEjemplo: false, sesiones: []
 };
@@ -2959,7 +3056,7 @@ function pintaPrep() {
   $('difs').innerHTML = DIFICULTADES.map(d => `<button class="an-opt" type="button" role="radio" data-dif="${d.id}" aria-pressed="${S.df === d.id}" aria-checked="${S.df === d.id}"><span class="an-emoji">${d.i}</span><span><b>${esc(t('dif.' + d.id))}</b><small>${esc(t('dif.' + d.id + '.s'))}</small></span></button>`).join('');
   $('modos').innerHTML = MODOS.map(m => `<button class="an-opt" type="button" role="radio" data-modo="${m.id}" aria-pressed="${S.md === m.id}" aria-checked="${S.md === m.id}"><span class="an-emoji">${m.i}</span><span><b>${esc(t('modo.' + m.id))}</b><small>${esc(t('modo.' + m.id + '.s'))}</small></span></button>`).join('');
   $('mdesc').textContent = t('modo.' + S.md + '.desc');
-  $('tSTT').checked = S.stt; $('tTTS').checked = S.tts;
+  $('tSTT').checked = S.stt; $('tTTS').checked = S.tts; $('tAVA').checked = S.ava;
   $('vozNo').hidden = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   $('estadoGen').textContent = '';
 }
@@ -2970,6 +3067,7 @@ $('difs').addEventListener('click', e => { const b = e.target.closest('[data-dif
 $('modos').addEventListener('click', e => { const b = e.target.closest('[data-modo]'); if (!b) return; S.md = b.dataset.modo; guarda(); pintaPrep(); });
 $('tSTT').onchange = e => { S.stt = e.target.checked; guarda(); };
 $('tTTS').onchange = e => { S.tts = e.target.checked; guarda(); };
+$('tAVA').onchange = e => { S.ava = e.target.checked; guarda(); };
 
 const CAN_NEXT = i => {
   if (i === 1) return S.caso ? true : t('Pulsa «Generar paciente e iniciar» para crear el caso.');
@@ -3066,6 +3164,7 @@ function pintaEntrevista() {
   $('btnMic').hidden = !(S.stt && (window.SpeechRecognition || window.webkitSpeechRecognition));
   $('estadoChat').textContent = S.ev ? t('Esta entrevista ya está evaluada.') : '';
   arrancaCronometro();
+  avatarMuestra();
 }
 function pintaChecklist() {
   $('checklist').innerHTML = CHECKLIST.map(it => {
@@ -3399,6 +3498,7 @@ function lee(texto, boton) {
   const base = locale().split('-')[0], voces = window.speechSynthesis.getVoices();
   const v = voces.find(x => x.lang.startsWith(base) && x.localService) || voces.find(x => x.lang.startsWith(base));
   if (v) u.voice = v;
+  avatarHabla(u, texto);
   if (boton) { boton.textContent = '⏹'; u.onend = u.onerror = () => { boton.textContent = '🔊'; }; }
   /* iOS necesita un respiro tras cancel() o se queda mudo */
   setTimeout(() => { try { window.speechSynthesis.speak(u); } catch (e) {} }, 60);

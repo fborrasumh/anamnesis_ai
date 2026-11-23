@@ -130,3 +130,4 @@ table{border-collapse:collapse;width:100%;font-size:13.8px}th{background:var(--p
 .an-sesiones .an-emoji{font-size:19px;flex:none}
 .an-sesiones b{font:700 14.5px var(--texto)}.an-sesiones small{display:block;color:var(--gris);font-size:12.4px}
 .an-sesiones .an-pts{margin-left:auto;font:800 17px var(--display);flex:none}
+.an-avatar{margin-bottom:12px}.an-avatar-lienzo{height:280px;border-radius:14px;background:linear-gradient(#EEF2F6,#DCE3EA);overflow:hidden}.an-avatar .help{margin:4px 0 0}

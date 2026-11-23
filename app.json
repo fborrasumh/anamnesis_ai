@@ -17,6 +17,14 @@
     "fr",
     "de"
   ],
+  "script_extra": [
+    "https://cdn.jsdelivr.net",
+    "'wasm-unsafe-eval'"
+  ],
+  "connect_extra": [
+    "'self'",
+    "blob:"
+  ],
   "modules": [
     "00-utils",
     "10-persist",
@@ -33,6 +41,7 @@
     "i18n-de.js",
     "datos.js",
     "nucleo.js",
+    "avatar.js",
     "app.js"
   ],
   "i18n": {

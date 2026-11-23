@@ -22,7 +22,7 @@ const GLOS = [
 ];
 
 let S = {
-  stu: '', sp: 'medicina general', df: 'intermedio', md: 'practica', stt: false, tts: false,
+  stu: '', sp: 'medicina general', df: 'intermedio', md: 'practica', stt: false, tts: false, ava: false,
   caso: null, his: [], turns: 0, t0: null, elapsed: 0, cls: {}, hyp: '', ev: null, avisos: [],
   esEjemplo: false, sesiones: []
 };
@@ -60,7 +60,7 @@ function pintaPrep() {
   $('difs').innerHTML = DIFICULTADES.map(d => `<button class="an-opt" type="button" role="radio" data-dif="${d.id}" aria-pressed="${S.df === d.id}" aria-checked="${S.df === d.id}"><span class="an-emoji">${d.i}</span><span><b>${esc(t('dif.' + d.id))}</b><small>${esc(t('dif.' + d.id + '.s'))}</small></span></button>`).join('');
   $('modos').innerHTML = MODOS.map(m => `<button class="an-opt" type="button" role="radio" data-modo="${m.id}" aria-pressed="${S.md === m.id}" aria-checked="${S.md === m.id}"><span class="an-emoji">${m.i}</span><span><b>${esc(t('modo.' + m.id))}</b><small>${esc(t('modo.' + m.id + '.s'))}</small></span></button>`).join('');
   $('mdesc').textContent = t('modo.' + S.md + '.desc');
-  $('tSTT').checked = S.stt; $('tTTS').checked = S.tts;
+  $('tSTT').checked = S.stt; $('tTTS').checked = S.tts; $('tAVA').checked = S.ava;
   $('vozNo').hidden = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
   $('estadoGen').textContent = '';
 }
@@ -71,6 +71,7 @@ $('difs').addEventListener('click', e => { const b = e.target.closest('[data-dif
 $('modos').addEventListener('click', e => { const b = e.target.closest('[data-modo]'); if (!b) return; S.md = b.dataset.modo; guarda(); pintaPrep(); });
 $('tSTT').onchange = e => { S.stt = e.target.checked; guarda(); };
 $('tTTS').onchange = e => { S.tts = e.target.checked; guarda(); };
+$('tAVA').onchange = e => { S.ava = e.target.checked; guarda(); };
 
 const CAN_NEXT = i => {
   if (i === 1) return S.caso ? true : t('Pulsa «Generar paciente e iniciar» para crear el caso.');
@@ -167,6 +168,7 @@ function pintaEntrevista() {
   $('btnMic').hidden = !(S.stt && (window.SpeechRecognition || window.webkitSpeechRecognition));
   $('estadoChat').textContent = S.ev ? t('Esta entrevista ya está evaluada.') : '';
   arrancaCronometro();
+  avatarMuestra();
 }
 function pintaChecklist() {
   $('checklist').innerHTML = CHECKLIST.map(it => {
@@ -500,6 +502,7 @@ function lee(texto, boton) {
   const base = locale().split('-')[0], voces = window.speechSynthesis.getVoices();
   const v = voces.find(x => x.lang.startsWith(base) && x.localService) || voces.find(x => x.lang.startsWith(base));
   if (v) u.voice = v;
+  avatarHabla(u, texto);
   if (boton) { boton.textContent = '⏹'; u.onend = u.onerror = () => { boton.textContent = '🔊'; }; }
   /* iOS necesita un respiro tras cancel() o se queda mudo */
   setTimeout(() => { try { window.speechSynthesis.speak(u); } catch (e) {} }, 60);

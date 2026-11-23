@@ -55,6 +55,15 @@ El ejemplo de demostración funciona **sin clave y sin red**: es un caso fictici
 - El dictado y la voz dependen del navegador: funcionan en Chrome y Edge, y no en todos los demás.
 - La calidad del caso y de la evaluación dependen del modelo que se use. Un modelo económico basta para practicar.
 
+## Prototipo: avatar 3D del paciente (rama `prototipo-avatar`)
+
+Casilla «Avatar 3D (prototipo)» en el paso 1. En la entrevista aparece el paciente en 3D y mueve los labios cuando habla con la voz del navegador. Sin coste por uso y sin servidor.
+
+- Motor: [TalkingHead](https://github.com/met4citizen/TalkingHead) 1.8.2 (MIT) y three.js 0.186, cargados desde jsDelivr solo si se activa la casilla.
+- Avatar: `avatar/paciente.glb`, el ejemplo «mpfb.glb» de TalkingHead (MPFB/MakeHuman, CC0), comprimido de 36 MB a 3 MB (meshopt + WebP).
+- Labios: la voz del navegador no deja leer su audio, así que se animan por palabras. Si la voz avisa de cada palabra, palabra a palabra; si no, el texto entero a un ritmo estimado.
+- Límites del prototipo: un solo avatar (mujer joven) para todos los casos; los textos nuevos solo están en español; con el avatar activo, jsDelivr recibe la petición de las librerías.
+
 ## Novedades de la versión 2.0.0
 
 - Diseño Forja: portada con autoría y ORCID, recorrido por pasos, ayuda y vista móvil.
