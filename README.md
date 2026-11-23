@@ -55,7 +55,7 @@ El ejemplo de demostración funciona **sin clave y sin red**: es un caso fictici
 - El dictado y la voz dependen del navegador: funcionan en Chrome y Edge, y no en todos los demás.
 - La calidad del caso y de la evaluación dependen del modelo que se use. Un modelo económico basta para practicar.
 
-## Prototipo: avatar 3D del paciente (rama `prototipo-avatar`)
+## Avatar 3D del paciente (prototipo)
 
 Casilla «Avatar 3D (prototipo)» en el paso 1. En la entrevista aparece el paciente en 3D y mueve los labios cuando habla con la voz del navegador. Sin coste por uso y sin servidor.
 
