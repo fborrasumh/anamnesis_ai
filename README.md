@@ -60,9 +60,10 @@ El ejemplo de demostración funciona **sin clave y sin red**: es un caso fictici
 Casilla «Avatar 3D (prototipo)» en el paso 1. En la entrevista aparece el paciente en 3D y mueve los labios cuando habla con la voz del navegador. Sin coste por uso y sin servidor.
 
 - Motor: [TalkingHead](https://github.com/met4citizen/TalkingHead) 1.8.2 (MIT) y three.js 0.186, cargados desde jsDelivr solo si se activa la casilla.
-- Avatar: `avatar/paciente.glb`, el ejemplo «mpfb.glb» de TalkingHead (MPFB/MakeHuman, CC0), comprimido de 36 MB a 3 MB (meshopt + WebP).
+- Avatares: 8 pacientes en `avatar/` (mujer y hombre de 25, 40, 58 y 75 años; ~1,3 MB cada uno). La app elige el más cercano a la edad y el sexo del caso y solo descarga ese.
+- Hechos con [MPFB](https://github.com/makehumancommunity/mpfb2) (MakeHuman para Blender), con el rig y los visemas de TalkingHead. Cuerpo, piel, pelo y ropa son recursos de MakeHuman (CC0). Los scripts que los generan están en `avatar/generador/`.
 - Labios: la voz del navegador no deja leer su audio, así que se animan por palabras. Si la voz avisa de cada palabra, palabra a palabra; si no, el texto entero a un ritmo estimado.
-- Límites del prototipo: un solo avatar (mujer joven) para todos los casos; los textos nuevos solo están en español; con el avatar activo, jsDelivr recibe la petición de las librerías.
+- Límites del prototipo: todos los avatares son de piel clara; los textos nuevos solo están en español; con el avatar activo, jsDelivr recibe la petición de las librerías.
 
 ## Novedades de la versión 2.0.0
 

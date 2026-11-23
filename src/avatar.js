@@ -4,27 +4,40 @@
    La voz del navegador no expone el audio, así que los labios se guían por palabras:
    - si la voz avisa de cada palabra (evento «boundary»), se anima palabra a palabra;
    - si no avisa (pasa con algunas voces de Chrome y Safari), se anima el texto entero con un ritmo estimado.
-   Avatar: «mpfb.glb» del repositorio de TalkingHead (MPFB/MakeHuman, CC0), comprimido a ~3 MB. */
+   Avatares: 8 pacientes (mujer/hombre de 25, 40, 58 y 75 años) hechos con MPFB/MakeHuman (CC0),
+   rig y visemas de TalkingHead; ~1,3 MB cada uno. Cómo se generan: avatar/generador/. */
 const AVATAR_LIB = 'https://cdn.jsdelivr.net/npm/@met4citizen/talkinghead@1.8.2/modules/talkinghead.mjs';
-const AVATAR_GLB = 'avatar/paciente.glb';
-let cabeza = null, cargandoCabeza = null;
+let cabeza = null, cargandoCabeza = null, avatarCargado = '';
+
+/* elige el avatar más cercano al paciente del caso */
+function avatarDelCaso(p) {
+  const sx = String(p?.sexo || '').toLowerCase();
+  const hombre = /hombre|var[oó]n|masc|\bhome\b|homem|homme|\bmann?\b|\bmale\b|männlich/.test(sx) && !/mujer|dona|mulher|femme|frau|weiblich|woman|female|femen/.test(sx);
+  const e = +p?.edad || 40;
+  const tramo = e < 33 ? 25 : e < 50 ? 40 : e < 67 ? 58 : 75;
+  return {url: `avatar/${hombre ? 'hombre' : 'mujer'}_${tramo}.glb`, body: hombre ? 'M' : 'F'};
+}
 
 async function avatarMuestra() {
   const zona = $('avatarZona');
   zona.hidden = !S.ava;
-  if (!S.ava || cabeza || cargandoCabeza) return;
+  if (!S.ava || !S.caso || cargandoCabeza) return;
+  const av = avatarDelCaso(S.caso.paciente);
+  if (cabeza && avatarCargado === av.url) return;
   const lienzo = $('avatarLienzo'), estado = $('avatarEstado');
   estado.textContent = t('Cargando avatar…');
   cargandoCabeza = (async () => {
-    const {TalkingHead} = await import(AVATAR_LIB);
-    cabeza = new TalkingHead(lienzo, {lipsyncModules: [], cameraView: 'head', avatarMood: 'neutral', modelFPS: 30});
-    await cabeza.showAvatar({url: AVATAR_GLB, body: 'F', avatarMood: 'neutral'},
+    if (!cabeza) {
+      const {TalkingHead} = await import(AVATAR_LIB);
+      cabeza = new TalkingHead(lienzo, {lipsyncModules: [], cameraView: 'head', avatarMood: 'neutral', modelFPS: 30});
+    }
+    await cabeza.showAvatar({url: av.url, body: av.body, avatarMood: 'neutral'},
       ev => { if (ev.lengthComputable) estado.textContent = t('Cargando avatar…') + ' ' + Math.round(100 * ev.loaded / ev.total) + '%'; });
-    estado.textContent = '';
+    avatarCargado = av.url; estado.textContent = '';
   })().catch(e => {
-    console.error(e); cabeza = null;
+    console.error(e); avatarCargado = '';
     estado.textContent = t('No se pudo cargar el avatar. La entrevista sigue igual sin él.');
-  }).finally(() => { cargandoCabeza = null; });
+  }).finally(() => { cargandoCabeza = null; if (S.ava && S.caso && avatarDelCaso(S.caso.paciente).url !== avatarCargado && cabeza) avatarMuestra(); });
 }
 
 /* letras → visemas (Oculus) con las reglas básicas de la ortografía española; sirve de aproximación para los demás idiomas */
